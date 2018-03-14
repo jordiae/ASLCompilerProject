@@ -104,14 +104,17 @@ void SymbolsListener::enterVariable_decl(AslParser::Variable_declContext *ctx) {
   DEBUG_ENTER();
 }
 void SymbolsListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
-  std::string ident = ctx->ID()->getText();
-  if (Symbols.findInCurrentScope(ident)) {
-    Errors.declaredIdent(ctx->ID());
+  for (unsigned int i = 0; i < ctx->ID().size(); i++){
+	  std::string ident = ctx->ID(i)->getText();
+	  if (Symbols.findInCurrentScope(ident)) {
+		Errors.declaredIdent(ctx->ID(i));
+	  }
+	  else {
+		TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
+		Symbols.addLocalVar(ident, t1);
+	  }
   }
-  else {
-    TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
-    Symbols.addLocalVar(ident, t1);
-  }
+  
   DEBUG_EXIT();
 }
 
@@ -121,6 +124,18 @@ void SymbolsListener::enterType(AslParser::TypeContext *ctx) {
 void SymbolsListener::exitType(AslParser::TypeContext *ctx) {
   if (ctx->INT()) {
     TypesMgr::TypeId t = Types.createIntegerTy();
+    putTypeDecor(ctx, t);
+  }
+  else if (ctx->BOOL()) {
+    TypesMgr::TypeId t = Types.createBooleanTy();
+    putTypeDecor(ctx, t);
+  }
+  else if (ctx->FLOAT()) {
+    TypesMgr::TypeId t = Types.createFloatTy();
+    putTypeDecor(ctx, t);
+  }
+  else if (ctx->CHAR()) {
+    TypesMgr::TypeId t = Types.createCharacterTy();
     putTypeDecor(ctx, t);
   }
   DEBUG_EXIT();

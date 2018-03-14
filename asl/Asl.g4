@@ -46,10 +46,13 @@ declarations
         ;
 
 variable_decl
-        : VAR ID ':' type
+        : VAR (ID)(','ID)* ':' type
         ;
 
 type    : INT
+		| BOOL
+		| FLOAT
+		| CHAR
         ;
 
 statements
@@ -77,10 +80,18 @@ left_expr
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
-expr    : expr op=MUL expr                    # arithmetic
-        | expr op=PLUS expr                   # arithmetic
-        | expr op=EQUAL expr                  # relational
+expr    : '(' expr ')'							# parenth
+		| op=SUB expr								# unary
+		| expr op=(MUL|DIV) expr                    # arithmetic
+        | expr op=(PLUS|SUB) expr                   # arithmetic
+        | op=NOT expr								# unary
+        | expr op=(EQUAL|GEQUAL|LEQUAL) expr        # relational
+        | expr op=(GREATER|LESSER) expr				# relational
+        | expr op=(OR|AND) expr				     	# boolean
         | INTVAL                              # value
+        | FLOATVAL							  # value
+        | CHARVAL							  # value
+        | BOOLVAL							  # value
         | ident                               # exprIdent
         ;
 
@@ -93,10 +104,22 @@ ident   : ID
 
 ASSIGN    : '=' ;
 EQUAL     : '==' ;
+GEQUAL	  : '>=' ;
+LEQUAL	  : '<=' ;
+GREATER	  : '>' ;
+LESSER	  : '<' ;
+NOT		  : 'not' ;
+AND		  : 'and' ;
+OR		  : 'or' ;
 PLUS      : '+' ;
+SUB		  : '-';
 MUL       : '*';
+DIV		  : '/';
 VAR       : 'var';
 INT       : 'int';
+BOOL	  : 'bool';
+FLOAT	  : 'float';
+CHAR	  : 'char';
 IF        : 'if' ;
 THEN      : 'then' ;
 ELSE      : 'else' ;
@@ -105,8 +128,12 @@ FUNC      : 'func' ;
 ENDFUNC   : 'endfunc' ;
 READ      : 'read' ;
 WRITE     : 'write' ;
+BOOLVAL   : ('true'|'false');
 ID        : ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')* ;
 INTVAL    : ('0'..'9')+ ;
+FLOATVAL  : (INTVAL('.')?|('0'..'9')*('.')('0'..'9')+);
+CHARVAL   : '\''('a'..'z'|'A'..'Z'|'_')'\'';
+
 
 // Strings (in quotes) with escape sequences
 STRING    : '"' ( ESC_SEQ | ~('\\'|'"') )* '"' ;

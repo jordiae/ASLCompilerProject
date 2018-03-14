@@ -189,15 +189,21 @@ void TypeCheckListener::enterArithmetic(AslParser::ArithmeticContext *ctx) {
   DEBUG_ENTER();
 }
 void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
-  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
-  TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
-  if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
-      ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2))))
-    Errors.incompatibleOperator(ctx->op);
-  TypesMgr::TypeId t = Types.createIntegerTy();
-  putTypeDecor(ctx, t);
-  putIsLValueDecor(ctx, false);
-  DEBUG_EXIT();
+	  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
+    TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
+    if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
+        ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2))))
+      Errors.incompatibleOperator(ctx->op);
+    //assuming int or float
+    TypesMgr::TypeId t;
+    if (Types.isFloatTy(t1) or Types.isFloatTy(t2))
+      t = Types.createFloatTy();
+    else
+      t = Types.createIntegerTy();
+    putTypeDecor(ctx, t);
+    putIsLValueDecor(ctx, false);
+    DEBUG_EXIT();
+  
 }
 
 void TypeCheckListener::enterRelational(AslParser::RelationalContext *ctx) {
@@ -220,7 +226,20 @@ void TypeCheckListener::enterValue(AslParser::ValueContext *ctx) {
   DEBUG_ENTER();
 }
 void TypeCheckListener::exitValue(AslParser::ValueContext *ctx) {
-  TypesMgr::TypeId t = Types.createIntegerTy();
+  TypesMgr::TypeId t;
+  if (ctx->INTVAL()){
+    t = Types.createIntegerTy();
+  }
+  else if (ctx->FLOATVAL()){
+    t = Types.createFloatTy();
+  }
+  else if (ctx->CHARVAL()){
+    t = Types.createCharacterTy();
+  }
+  else if (ctx->BOOLVAL()){
+    t = Types.createBooleanTy();
+  }
+  
   putTypeDecor(ctx, t);
   putIsLValueDecor(ctx, false);
   DEBUG_EXIT();
@@ -258,6 +277,57 @@ void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
   }
   DEBUG_EXIT();
 }
+
+void TypeCheckListener::enterUnary(AslParser::UnaryContext *ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitUnary(AslParser::UnaryContext *ctx) {
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr());
+  if (ctx->SUB()){
+    if ((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1)))
+      Errors.incompatibleOperator(ctx->op);
+    TypesMgr::TypeId t;
+    //assuming int or float
+    if (Types.isFloatTy(t1))
+      t = Types.createFloatTy();
+    else 
+      t = Types.createIntegerTy();
+    putTypeDecor(ctx, t);
+  } else if (ctx->NOT()){
+    if ((not Types.isErrorTy(t1)) and (not Types.isBooleanTy(t1)))
+      Errors.incompatibleOperator(ctx->op);
+    TypesMgr::TypeId t = Types.createBooleanTy();
+    putTypeDecor(ctx, t);
+  }
+  putIsLValueDecor(ctx, false);
+  DEBUG_EXIT();
+}
+
+void TypeCheckListener::enterParenth(AslParser::ParenthContext *ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitParenth(AslParser::ParenthContext *ctx) {
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr());
+  putTypeDecor(ctx, t1);
+  putIsLValueDecor(ctx, false);
+  DEBUG_EXIT();
+}
+
+void TypeCheckListener::enterBoolean(AslParser::BooleanContext *ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitBoolean(AslParser::BooleanContext *ctx) {
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
+  TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
+  std::string oper = ctx->op->getText();
+  if (((not Types.isErrorTy(t1)) and (not Types.isBooleanTy(t1))) or ((not Types.isErrorTy(t2)) and (not Types.isBooleanTy(t2))) )
+    Errors.incompatibleOperator(ctx->op);
+  TypesMgr::TypeId t = Types.createBooleanTy();
+  putTypeDecor(ctx, t);
+  putIsLValueDecor(ctx, false);
+  DEBUG_EXIT();
+}
+
 
 // void TypeCheckListener::enterEveryRule(antlr4::ParserRuleContext *ctx) {
 //   DEBUG_ENTER();
