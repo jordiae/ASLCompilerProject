@@ -360,6 +360,10 @@ void CodeGenListener::exitRelational(AslParser::RelationalContext *ctx) {
     else if (ctx->LESSER())
       code = code || instruction::LT(temp, addr1, addr2);  
   }
+  else if (Types.isBooleanTy(t1) and Types.isBooleanTy(t2)){
+    if (ctx->EQUAL())
+      code = code || instruction::EQ(temp, addr1, addr2);
+  }
   
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, "");
@@ -373,7 +377,17 @@ void CodeGenListener::enterValue(AslParser::ValueContext *ctx) {
 void CodeGenListener::exitValue(AslParser::ValueContext *ctx) {
   instructionList code;
   std::string temp = "%"+codeCounters.newTEMP();
-  code = instruction::ILOAD(temp, ctx->getText());
+  std::string tempText = ctx->getText();
+  if (tempText == "true")
+    tempText = "1";
+  else if (tempText == "false")
+    tempText = "0";
+  if (ctx->INTVAL() or ctx->BOOLVAL())
+    code = instruction::ILOAD(temp, tempText);
+  else if (ctx->FLOATVAL())
+    code = instruction::FLOAD(temp, tempText);
+  else
+    code = instruction::CHLOAD(temp, tempText);
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, "");
   putCodeDecor(ctx, code);
@@ -452,6 +466,23 @@ void CodeGenListener::exitBoolean(AslParser::BooleanContext *ctx) {
     code = code || instruction::OR(temp, addr2, addr1);
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, "");
+  putCodeDecor(ctx, code);
+  DEBUG_EXIT();
+}
+
+void CodeGenListener::enterWhileStmt(AslParser::WhileStmtContext *ctx) {
+  DEBUG_ENTER();
+}
+void CodeGenListener::exitWhileStmt(AslParser::WhileStmtContext *ctx) {
+  instructionList   code;
+  std::string      addr1 = getAddrDecor(ctx->expr());
+  instructionList  code1 = getCodeDecor(ctx->expr());
+  instructionList  code2 = getCodeDecor(ctx->statements());
+  std::string      label = codeCounters.newLabelWHILE();
+  std::string labelStartWhile = "startwhile"+label;
+  std::string labelEndWhile = "endwhile"+label;
+  code = instruction::LABEL(labelStartWhile) || code1 || instruction::FJUMP(addr1, labelEndWhile) ||
+         code2 || instruction::UJUMP(labelStartWhile) || instruction::LABEL(labelEndWhile);
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }

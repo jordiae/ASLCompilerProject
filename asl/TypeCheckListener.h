@@ -122,6 +122,9 @@ public:
   void enterBoolean(AslParser::BooleanContext *ctx);
   void exitBoolean(AslParser::BooleanContext *ctx);
 
+  void enterWhileStmt(AslParser::WhileStmtContext *ctx);
+  void exitWhileStmt(AslParser::WhileStmtContext *ctx);
+
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);
   // void visitTerminal(antlr4::tree::TerminalNode *node);

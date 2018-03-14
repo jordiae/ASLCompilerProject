@@ -40,6 +40,9 @@ public:
   virtual void enterIfStmt(AslParser::IfStmtContext * /*ctx*/) override { }
   virtual void exitIfStmt(AslParser::IfStmtContext * /*ctx*/) override { }
 
+  virtual void enterWhileStmt(AslParser::WhileStmtContext * /*ctx*/) override { }
+  virtual void exitWhileStmt(AslParser::WhileStmtContext * /*ctx*/) override { }
+
   virtual void enterProcCall(AslParser::ProcCallContext * /*ctx*/) override { }
   virtual void exitProcCall(AslParser::ProcCallContext * /*ctx*/) override { }
 

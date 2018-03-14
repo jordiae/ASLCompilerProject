@@ -65,6 +65,8 @@ statement
         : left_expr ASSIGN expr ';'           # assignStmt
           // if-then-else statement (else is optional)
         | IF expr THEN statements ENDIF       # ifStmt
+          // while statement
+        | WHILE expr DO statements ENDWHILE   # whileStmt
           // A function/procedure call has a list of arguments in parenthesis (possibly empty)
         | ident '(' ')' ';'                   # procCall
           // Read a variable
@@ -124,6 +126,9 @@ IF        : 'if' ;
 THEN      : 'then' ;
 ELSE      : 'else' ;
 ENDIF     : 'endif' ;
+WHILE	  : 'while' ;
+DO		  : 'do' ;
+ENDWHILE  : 'endwhile' ;
 FUNC      : 'func' ;
 ENDFUNC   : 'endfunc' ;
 READ      : 'read' ;

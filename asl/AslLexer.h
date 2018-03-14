@@ -16,9 +16,9 @@ public:
     GEQUAL = 8, LEQUAL = 9, GREATER = 10, LESSER = 11, NOT = 12, AND = 13, 
     OR = 14, PLUS = 15, SUB = 16, MUL = 17, DIV = 18, VAR = 19, INT = 20, 
     BOOL = 21, FLOAT = 22, CHAR = 23, IF = 24, THEN = 25, ELSE = 26, ENDIF = 27, 
-    FUNC = 28, ENDFUNC = 29, READ = 30, WRITE = 31, BOOLVAL = 32, ID = 33, 
-    INTVAL = 34, FLOATVAL = 35, CHARVAL = 36, STRING = 37, COMMENT = 38, 
-    WS = 39
+    WHILE = 28, DO = 29, ENDWHILE = 30, FUNC = 31, ENDFUNC = 32, READ = 33, 
+    WRITE = 34, BOOLVAL = 35, ID = 36, INTVAL = 37, FLOATVAL = 38, CHARVAL = 39, 
+    STRING = 40, COMMENT = 41, WS = 42
   };
 
   AslLexer(antlr4::CharStream *input);

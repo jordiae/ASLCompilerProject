@@ -328,6 +328,16 @@ void TypeCheckListener::exitBoolean(AslParser::BooleanContext *ctx) {
   DEBUG_EXIT();
 }
 
+void TypeCheckListener::enterWhileStmt(AslParser::WhileStmtContext *ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitWhileStmt(AslParser::WhileStmtContext *ctx) {
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr());
+  if ((not Types.isErrorTy(t1)) and (not Types.isBooleanTy(t1)))
+    Errors.booleanRequired(ctx);
+  DEBUG_EXIT();
+}
+
 
 // void TypeCheckListener::enterEveryRule(antlr4::ParserRuleContext *ctx) {
 //   DEBUG_ENTER();
