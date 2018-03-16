@@ -232,6 +232,37 @@ void SymbolsListener::exitIdent(AslParser::IdentContext *ctx) {
   DEBUG_EXIT();
 }
 
+void SymbolsListener::enterParam(AslParser::ParamContext *ctx) {
+  DEBUG_ENTER();
+}
+void SymbolsListener::exitParam(AslParser::ParamContext *ctx) {
+  std::string ident = ctx->ID()->getText();
+  if (Symbols.findInCurrentScope(ident)) {
+	Errors.declaredIdent(ctx->ID());
+  }
+  else {
+	TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
+	Symbols.addLocalVar(ident, t1);
+  }
+  
+  DEBUG_EXIT();
+}
+
+void SymbolsListener::enterReturnStmt(AslParser::ReturnStmtContext *ctx) {
+  DEBUG_ENTER();
+}
+void SymbolsListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
+  if (ctx->expr()) {
+    TypesMgr::TypeId t1 = getTypeDecor(ctx->expr());
+    putTypeDecor(ctx, t1);
+  }
+  else {
+	TypesMgr::TypeId t1 = Types.createVoidTy();
+    putTypeDecor(ctx, t1);
+  }
+  DEBUG_EXIT();
+}
+
 // void SymbolsListener::enterEveryRule(antlr4::ParserRuleContext *ctx) {
 //   DEBUG_ENTER();
 // }

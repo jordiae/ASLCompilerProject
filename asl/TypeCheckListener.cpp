@@ -74,6 +74,19 @@ void TypeCheckListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
+  if (ctx->type()){
+    TypesMgr::TypeId t1 = getTypeDecor(ctx->return_statement());
+    TypesMgr::TypeId t2 = getTypeDecor(ctx->type());
+    if ( (not Types.isErrorTy(t1)) and (not (t1 == t2) ) )
+      Errors.incompatibleReturn(ctx);
+  } //EH, QUE EL RETURN TYPE NO SE MIRA AQUI
+  else{
+    if (ctx->return_statement()){
+      //TypesMgr::TypeId t1 = getTypeDecor(ctx->return_statement());
+      //if ( (not Types.isErrorTy(t1)) and (not Types.isVoidTy(t1) ) )
+        Errors.incompatibleReturn(ctx);
+    }
+  }
   // Symbols.print();
 }
 void TypeCheckListener::exitFunction(AslParser::FunctionContext *ctx) {

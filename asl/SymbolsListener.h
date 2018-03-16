@@ -111,6 +111,12 @@ public:
   void enterIdent(AslParser::IdentContext *ctx);
   void exitIdent(AslParser::IdentContext *ctx);
 
+  void enterParam(AslParser::ParamContext *ctx);
+  void exitParam(AslParser::ParamContext *ctx);
+
+  void enterReturnStmt(AslParser::ReturnStmtContext *ctx);
+  void exitReturnStmt(AslParser::ReturnStmtContext *ctx);
+
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);
   // void visitTerminal(antlr4::tree::TerminalNode *node);

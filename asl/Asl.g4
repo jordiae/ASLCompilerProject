@@ -38,7 +38,7 @@ program : function+ EOF
 
 // A function has a name, a list of parameters and a list of statements
 function
-        : FUNC ID '(' ')' declarations statements ENDFUNC
+        : FUNC ID '(' (params)? ')' ((declarations statements (return_statement)? ENDFUNC) |  (':' type declarations statements return_statement ENDFUNC ) )
         ;
 
 declarations
@@ -48,6 +48,14 @@ declarations
 variable_decl
         : VAR (ID)(','ID)* ':' type
         ;
+
+params
+		: (param) (',' param)*
+		;
+
+param
+		: (ID ':' type)
+		;
 
 type    : INT
 		| BOOL
@@ -76,6 +84,11 @@ statement
           // Write a string
         | WRITE STRING ';'                    # writeString
         ;
+        
+return_statement
+		: RETURN (expr)? ';' 				  #returnStmt
+		;
+
 // Grammar for left expressions (l-values in C++)
 left_expr
         : ident
@@ -87,7 +100,7 @@ expr    : '(' expr ')'							# parenth
 		| expr op=(MUL|DIV) expr                    # arithmetic
         | expr op=(PLUS|SUB) expr                   # arithmetic
         | op=NOT expr								# unary
-        | expr op=(EQUAL|GEQUAL|LEQUAL) expr        # relational
+        | expr op=(EQUAL|GEQUAL|LEQUAL|NEQUAL) expr        # relational
         | expr op=(GREATER|LESSER) expr				# relational
         | expr op=(OR|AND) expr				     	# boolean
         | INTVAL                              # value
@@ -110,6 +123,7 @@ GEQUAL	  : '>=' ;
 LEQUAL	  : '<=' ;
 GREATER	  : '>' ;
 LESSER	  : '<' ;
+NEQUAL    : '!=' ;
 NOT		  : 'not' ;
 AND		  : 'and' ;
 OR		  : 'or' ;
@@ -133,6 +147,7 @@ FUNC      : 'func' ;
 ENDFUNC   : 'endfunc' ;
 READ      : 'read' ;
 WRITE     : 'write' ;
+RETURN	  : 'return' ;
 BOOLVAL   : ('true'|'false');
 ID        : ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')* ;
 INTVAL    : ('0'..'9')+ ;

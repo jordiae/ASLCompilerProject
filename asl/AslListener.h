@@ -26,6 +26,12 @@ public:
   virtual void enterVariable_decl(AslParser::Variable_declContext *ctx) = 0;
   virtual void exitVariable_decl(AslParser::Variable_declContext *ctx) = 0;
 
+  virtual void enterParams(AslParser::ParamsContext *ctx) = 0;
+  virtual void exitParams(AslParser::ParamsContext *ctx) = 0;
+
+  virtual void enterParam(AslParser::ParamContext *ctx) = 0;
+  virtual void exitParam(AslParser::ParamContext *ctx) = 0;
+
   virtual void enterType(AslParser::TypeContext *ctx) = 0;
   virtual void exitType(AslParser::TypeContext *ctx) = 0;
 
@@ -52,6 +58,9 @@ public:
 
   virtual void enterWriteString(AslParser::WriteStringContext *ctx) = 0;
   virtual void exitWriteString(AslParser::WriteStringContext *ctx) = 0;
+
+  virtual void enterReturnStmt(AslParser::ReturnStmtContext *ctx) = 0;
+  virtual void exitReturnStmt(AslParser::ReturnStmtContext *ctx) = 0;
 
   virtual void enterLeft_expr(AslParser::Left_exprContext *ctx) = 0;
   virtual void exitLeft_expr(AslParser::Left_exprContext *ctx) = 0;
