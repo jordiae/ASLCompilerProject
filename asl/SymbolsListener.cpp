@@ -242,7 +242,7 @@ void SymbolsListener::exitParam(AslParser::ParamContext *ctx) {
   }
   else {
 	TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
-	Symbols.addLocalVar(ident, t1);
+	Symbols.addParameter(ident, t1);
   }
   
   DEBUG_EXIT();

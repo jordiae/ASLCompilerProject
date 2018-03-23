@@ -74,19 +74,40 @@ void TypeCheckListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
-  if (ctx->type()){
-    TypesMgr::TypeId t1 = getTypeDecor(ctx->return_statement());
-    TypesMgr::TypeId t2 = getTypeDecor(ctx->type());
-    if ( (not Types.isErrorTy(t1)) and (not (t1 == t2) ) )
-      Errors.incompatibleReturn(ctx);
-  } //EH, QUE EL RETURN TYPE NO SE MIRA AQUI
-  else{
-    if (ctx->return_statement()){
-      //TypesMgr::TypeId t1 = getTypeDecor(ctx->return_statement());
-      //if ( (not Types.isErrorTy(t1)) and (not Types.isVoidTy(t1) ) )
-        Errors.incompatibleReturn(ctx);
+  
+
+  TypesMgr::TypeId t1;
+  if (ctx->type()) {
+    if (ctx->type()->INT()){
+      t1 = Types.createIntegerTy();
+      //std::cout << "int" << std::endl;
     }
+    else if (ctx->type()->FLOAT()){
+      t1 = Types.createFloatTy();
+    //  std::cout << "float" << std::endl;
+    }
+    else if (ctx->type()->CHAR()){
+      t1 = Types.createCharacterTy();
+   //   std::cout << "char" << std::endl;
+    }
+    else if (ctx->type()->BOOL()){
+      t1 = Types.createBooleanTy();
+   //   std::cout << "bool" << std::endl;
+    }
+    
   }
+  else {
+    t1 = Types.createVoidTy();
+ //   std::cout << "void" << std::endl;
+  }
+  putTypeDecor(ctx, t1);
+
+  TypesMgr::TypeId t2 = Symbols.getCurrentFunctionTy();
+  //t2 = Types.getFuncReturnType(t2);
+  //Types.dump(t1); std::cout << "t1:  "<< std::endl;
+  Types.dump(t2); std::cout << std::endl;
+
+  putIsLValueDecor(ctx, false);
   // Symbols.print();
 }
 void TypeCheckListener::exitFunction(AslParser::FunctionContext *ctx) {
@@ -352,6 +373,76 @@ void TypeCheckListener::exitWhileStmt(AslParser::WhileStmtContext *ctx) {
 }
 
 
+
+void TypeCheckListener::enterReturnStmt(AslParser::ReturnStmtContext *ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
+  TypesMgr::TypeId t1;
+  TypesMgr::TypeId t2 = Symbols.getCurrentFunctionTy();
+  t2 = Types.getFuncReturnType(t2);
+   if (ctx->expr()){
+    t1 = getTypeDecor(ctx->expr());
+    //TypesMgr::TypeId t2 = getTypeDecor(ctx->type());
+  }
+  else{
+      t1 = Types.createVoidTy();
+  }
+  Types.dump(t2);
+  if (t1 == Types.createIntegerTy()){
+    std::cout << "return int" << std::endl;
+  }
+  else if (t1 == Types.createFloatTy()){
+    std::cout << "return float" << std::endl;
+  }
+  else if (t1 == Types.createBooleanTy()){
+    std::cout << "return bool" << std::endl;
+  }
+  else if (t1 == Types.createCharacterTy()){
+    std::cout << "return char" << std::endl;
+  }
+  else if (t1 == Types.createVoidTy()){
+    std::cout << "return void" << std::endl;
+  }
+  else if (t1 == Types.createErrorTy()){
+    std::cout << "return error" << std::endl;
+  }
+  else{
+    std::cout << "return funky" << std::endl;
+  }
+  
+  if (t2 == Types.createIntegerTy()){
+    std::cout << "functype int" << std::endl;
+  }
+  else if (t2 == Types.createFloatTy()){
+    std::cout << "functype float" << std::endl;
+  }
+  else if (t2 == Types.createBooleanTy()){
+    std::cout << "functype bool" << std::endl;
+  }
+  else if (t2 == Types.createCharacterTy()){
+    std::cout << "functype char" << std::endl;
+  }
+  else if (t2 == Types.createVoidTy()){
+    std::cout << "functype void" << std::endl;
+  }
+  else if (t2 == Types.createErrorTy()){
+    std::cout << "functype error" << std::endl;
+  }
+  else{
+    std::cout << "functype funky" << std::endl;
+  }
+
+
+  if ( (not Types.isErrorTy(t1)) and (not (t1 == t2) ) )
+    Errors.incompatibleReturn(ctx);
+  //putTypeDecor(ctx, t1);
+
+  DEBUG_EXIT();
+}
+
+
+
 // void TypeCheckListener::enterEveryRule(antlr4::ParserRuleContext *ctx) {
 //   DEBUG_ENTER();
 // }
@@ -388,3 +479,12 @@ void TypeCheckListener::putTypeDecor(antlr4::ParserRuleContext *ctx, TypesMgr::T
 void TypeCheckListener::putIsLValueDecor(antlr4::ParserRuleContext *ctx, bool b) {
   Decorations.putIsLValue(ctx, b);
 }
+
+
+/* 
+
+param i params deberian estar en el simbol listener
+la definicion de la funcion deberias estar en el simbol (modificar la que ya hay en el symbol)
+debugar mucho
+
+*/
