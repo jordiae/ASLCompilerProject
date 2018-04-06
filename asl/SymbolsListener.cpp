@@ -77,6 +77,7 @@ void SymbolsListener::enterFunction(AslParser::FunctionContext *ctx) {
   SymTable::ScopeId sc = Symbols.pushNewScope(funcName);
   putScopeDecor(ctx, sc);
 }
+
 void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
   // Symbols.print();
   Symbols.popScope();
@@ -86,7 +87,43 @@ void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
   }
   else {
     std::vector<TypesMgr::TypeId> lParamsTy;
-    TypesMgr::TypeId tRet = Types.createVoidTy();
+    //have to insert the types of the parameters
+    if (ctx->params()) {
+        unsigned int paramN = ctx->params()->param().size();
+        
+        for (unsigned int i = 0; i < paramN; i++){
+            TypesMgr::TypeId t1 = getTypeDecor(ctx->params()->param(i)->type());
+		    lParamsTy.push_back(t1);
+        }
+    }
+    
+    TypesMgr::TypeId tRet; //= Types.createVoidTy();
+    
+    if (ctx->type()) {
+      if (ctx->type()->INT()){
+        tRet = Types.createIntegerTy();
+        //std::cout << "int" << std::endl;
+      }
+      else if (ctx->type()->FLOAT()){
+        tRet = Types.createFloatTy();
+      //  std::cout << "float" << std::endl;
+      }
+      else if (ctx->type()->CHAR()){
+        tRet = Types.createCharacterTy();
+     //   std::cout << "char" << std::endl;
+      }
+      else if (ctx->type()->BOOL()){
+        tRet = Types.createBooleanTy();
+     //   std::cout << "bool" << std::endl;
+      }
+      
+    }
+    else {
+      tRet = Types.createVoidTy();
+    //   std::cout << "void" << std::endl;
+    }
+    //putTypeDecor(ctx, t1);
+    
     TypesMgr::TypeId tFunc = Types.createFunctionTy(lParamsTy, tRet);
     Symbols.addFunction(ident, tFunc);
   }
@@ -232,6 +269,22 @@ void SymbolsListener::exitIdent(AslParser::IdentContext *ctx) {
   DEBUG_EXIT();
 }
 
+void SymbolsListener::enterReturnStmt(AslParser::ReturnStmtContext *ctx) {
+  DEBUG_ENTER();
+}
+void SymbolsListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
+  if (ctx->expr()) {
+    TypesMgr::TypeId t1 = getTypeDecor(ctx->expr());
+    putTypeDecor(ctx, t1);
+  }
+  else {
+	TypesMgr::TypeId t1 = Types.createVoidTy();
+    putTypeDecor(ctx, t1);
+  }
+  DEBUG_EXIT();
+}
+
+
 void SymbolsListener::enterParam(AslParser::ParamContext *ctx) {
   DEBUG_ENTER();
 }
@@ -248,20 +301,7 @@ void SymbolsListener::exitParam(AslParser::ParamContext *ctx) {
   DEBUG_EXIT();
 }
 
-void SymbolsListener::enterReturnStmt(AslParser::ReturnStmtContext *ctx) {
-  DEBUG_ENTER();
-}
-void SymbolsListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
-  if (ctx->expr()) {
-    TypesMgr::TypeId t1 = getTypeDecor(ctx->expr());
-    putTypeDecor(ctx, t1);
-  }
-  else {
-	TypesMgr::TypeId t1 = Types.createVoidTy();
-    putTypeDecor(ctx, t1);
-  }
-  DEBUG_EXIT();
-}
+
 
 // void SymbolsListener::enterEveryRule(antlr4::ParserRuleContext *ctx) {
 //   DEBUG_ENTER();

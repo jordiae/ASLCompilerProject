@@ -74,40 +74,12 @@ void TypeCheckListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
-  
-
-  TypesMgr::TypeId t1;
-  if (ctx->type()) {
-    if (ctx->type()->INT()){
-      t1 = Types.createIntegerTy();
-      //std::cout << "int" << std::endl;
-    }
-    else if (ctx->type()->FLOAT()){
-      t1 = Types.createFloatTy();
-    //  std::cout << "float" << std::endl;
-    }
-    else if (ctx->type()->CHAR()){
-      t1 = Types.createCharacterTy();
-   //   std::cout << "char" << std::endl;
-    }
-    else if (ctx->type()->BOOL()){
-      t1 = Types.createBooleanTy();
-   //   std::cout << "bool" << std::endl;
-    }
-    
-  }
-  else {
-    t1 = Types.createVoidTy();
- //   std::cout << "void" << std::endl;
-  }
-  putTypeDecor(ctx, t1);
-
-  TypesMgr::TypeId t2 = Symbols.getCurrentFunctionTy();
+  //TypesMgr::TypeId t2 = Symbols.getCurrentFunctionTy();
   //t2 = Types.getFuncReturnType(t2);
   //Types.dump(t1); std::cout << "t1:  "<< std::endl;
-  Types.dump(t2); std::cout << std::endl;
+  //Types.dump(t2); std::cout << std::endl;
 
-  putIsLValueDecor(ctx, false);
+  //putIsLValueDecor(ctx, false);
   // Symbols.print();
 }
 void TypeCheckListener::exitFunction(AslParser::FunctionContext *ctx) {
@@ -388,7 +360,7 @@ void TypeCheckListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
   else{
       t1 = Types.createVoidTy();
   }
-  Types.dump(t2);
+  /*Types.dump(t2);
   if (t1 == Types.createIntegerTy()){
     std::cout << "return int" << std::endl;
   }
@@ -431,7 +403,7 @@ void TypeCheckListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
   }
   else{
     std::cout << "functype funky" << std::endl;
-  }
+  } */
 
 
   if ( (not Types.isErrorTy(t1)) and (not (t1 == t2) ) )
