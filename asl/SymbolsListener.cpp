@@ -141,6 +141,7 @@ void SymbolsListener::enterVariable_decl(AslParser::Variable_declContext *ctx) {
   DEBUG_ENTER();
 }
 void SymbolsListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
+  if (not ctx->INTVAL())
   for (unsigned int i = 0; i < ctx->ID().size(); i++){
 	  std::string ident = ctx->ID(i)->getText();
 	  if (Symbols.findInCurrentScope(ident)) {
@@ -150,6 +151,19 @@ void SymbolsListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
 		TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
 		Symbols.addLocalVar(ident, t1);
 	  }
+  }
+  else {
+    for (unsigned int i = 0; i < ctx->ID().size(); i++){
+    std::string ident = ctx->ID(i)->getText();
+    if (Symbols.findInCurrentScope(ident)) {
+    Errors.declaredIdent(ctx->ID(i));
+    }
+    else {
+    TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
+    t1 = Types.createArrayTy(stoi(ctx->INTVAL()->getText()),t1);
+    Symbols.addLocalVar(ident, t1);
+    }
+  }
   }
   
   DEBUG_EXIT();
@@ -295,7 +309,11 @@ void SymbolsListener::exitParam(AslParser::ParamContext *ctx) {
   }
   else {
 	TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
-	Symbols.addParameter(ident, t1);
+	if (ctx->INTVAL()) {
+    t1 = Types.createArrayTy(stoi(ctx->INTVAL()->getText()),t1);
+  }
+  Symbols.addParameter(ident, t1);
+
   }
   
   DEBUG_EXIT();

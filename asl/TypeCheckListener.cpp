@@ -266,7 +266,7 @@ void TypeCheckListener::enterIdent(AslParser::IdentContext *ctx) {
   DEBUG_ENTER();
 }
 void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
-  std::string ident = ctx->getText();
+  std::string ident = ctx->ID()->getText();
   if (Symbols.findInStack(ident) == -1) {
     Errors.undeclaredIdent(ctx->ID());
     TypesMgr::TypeId te = Types.createErrorTy();
@@ -275,6 +275,17 @@ void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
   }
   else {
     TypesMgr::TypeId t1 = Symbols.getType(ident);
+    if (ctx->OPENARRAY()) {
+      if (Types.isArrayTy(t1))
+        t1 = Types.getArrayElemType(t1);
+      else{
+        Errors.nonArrayInArrayAccess(ctx);
+      }
+      if (not Types.isIntegerTy(getTypeDecor(ctx->expr(0)))){
+        Errors.nonIntegerIndexInArrayAccess(ctx->expr(0));
+      }
+    }
+
     putTypeDecor(ctx, t1);
     if (Symbols.isFunctionClass(ident))
       putIsLValueDecor(ctx, false);

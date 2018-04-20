@@ -1,0 +1,240 @@
+BEGIN examples-initial/typecheck
+jpbasic_chkt_01.asl
+jpbasic_chkt_02.asl
+jpbasic_chkt_03.asl
+jpbasic_chkt_04.asl
+END   examples-initial/typecheck
+
+BEGIN examples-full/typecheck
+jp_chkt_01.asl
+jp_chkt_02.asl
+jp_chkt_03.asl
+jp_chkt_04.asl
+jp_chkt_05.asl
+1c1,6
+< Lexical and/or syntactical errors have been found.
+---
+> Line 3:2 error: Array access to a non array operand.
+> Line 4:6 error: Array access to a non array operand.
+> Line 5:6 error: Array access to a non array operand.
+> Line 5:8 error: Array access witn non integer index.
+> Line 6:2 error: Array access to a non array operand.
+> Line 6:4 error: Array access witn non integer index.
+jp_chkt_06.asl
+1c1,3
+< Lexical and/or syntactical errors have been found.
+---
+> Line 7:11 error: Operator 'or' with incompatible types.
+> Line 7:4 error: Assignment with incompatible types.
+> Line 9:0 error: There is no 'main' function properly declared.
+jp_chkt_07.asl
+1c1
+< Lexical and/or syntactical errors have been found.
+---
+> Line 9:0 error: There is no 'main' function properly declared.
+jp_chkt_08.asl
+1c1,4
+< Lexical and/or syntactical errors have been found.
+---
+> Line 5:11 error: Operator '>' with incompatible types.
+> Line 12:6 error: Identifier 'p' is a void returning function.
+> Line 13:2 error: Identifier 'a' is not a callable function.
+> Line 14:6 error: Identifier 'a' is not a callable function.
+jp_chkt_09.asl
+1c1,5
+< Lexical and/or syntactical errors have been found.
+---
+> Line 2:4 error: Assignment with incompatible types.
+> Line 2:2 error: Left expression of assignment is not referenceable.
+> Line 3:2 error: Array access to a non array operand.
+> Line 4:2 error: Referenceable expression required in 'read'.
+> Line 5:7 error: Array access to a non array operand.
+jp_chkt_10.asl
+1c1,6
+< Lexical and/or syntactical errors have been found.
+---
+> Line 6:4 error: Assignment with incompatible types.
+> Line 8:4 error: Assignment with incompatible types.
+> Line 11:4 error: Assignment with incompatible types.
+> Line 12:4 error: Assignment with incompatible types.
+> Line 14:4 error: Assignment with incompatible types.
+> Line 14:2 error: Left expression of assignment is not referenceable.
+jp_chkt_11.asl
+1c1,3
+< Lexical and/or syntactical errors have been found.
+---
+> Line 4:2 error: Referenceable expression required in 'read'.
+> Line 6:2 error: Basic type required in 'read'.
+> Line 7:7 error: Identifier 'x' is undeclared.
+jp_chkt_12.asl
+1c1,10
+< Lexical and/or syntactical errors have been found.
+---
+> Line 2:2 error: Return with incompatible type.
+> Line 4:9 error: Return with incompatible type.
+> Line 5:9 error: Return with incompatible type.
+> Line 10:9 error: Return with incompatible type.
+> Line 17:2 error: Return with incompatible type.
+> Line 21:9 error: Return with incompatible type.
+> Line 27:2 error: Basic type required in 'read'.
+> Line 28:2 error: Basic type required in 'write'.
+> Line 29:2 error: Referenceable expression required in 'read'.
+> Line 30:2 error: Basic type required in 'write'.
+jp_chkt_13.asl
+1c1,6
+< Lexical and/or syntactical errors have been found.
+---
+> Line 2:6 error: Identifier 'b' is undeclared.
+> Line 3:2 error: Identifier 'c' is undeclared.
+> Line 4:2 error: Identifier 'b' is undeclared.
+> Line 5:6 error: Identifier 'c' is undeclared.
+> Line 7:2 error: Identifier 'h' is undeclared.
+> Line 13:2 error: Identifier 'a' is undeclared.
+jp_chkt_14.asl
+1c1,6
+< Lexical and/or syntactical errors have been found.
+---
+> Line 3:6 error: Identifier 'b' already declared.
+> Line 4:11 error: Operator '+' with incompatible types.
+> Line 5:4 error: Assignment with incompatible types.
+> Line 6:13 error: Array access witn non integer index.
+> Line 6:8 error: Parameter #1 with incompatible types in call to 'f'.
+> Line 6:11 error: Parameter #2 with incompatible types in call to 'f'.
+jp_chkt_15.asl
+1c1,4
+< Lexical and/or syntactical errors have been found.
+---
+> Line 3:11 error: Operator '+' with incompatible types.
+> Line 4:4 error: Assignment with incompatible types.
+> Line 5:18 error: Operator '+' with incompatible types.
+> Line 5:15 error: Parameter #2 with incompatible types in call to 'f'.
+jp_chkt_16.asl
+1c1,3
+< Lexical and/or syntactical errors have been found.
+---
+> Line 3:20 error: Operator '+' with incompatible types.
+> Line 3:25 error: Operator 'and' with incompatible types.
+> Line 3:4 error: Assignment with incompatible types.
+jp_chkt_17.asl
+1c1,3
+< Lexical and/or syntactical errors have been found.
+---
+> Line 4:4 error: Assignment with incompatible types.
+> Line 7:8 error: Parameter #1 with incompatible types in call to 'f'.
+> Line 7:4 error: Assignment with incompatible types.
+jp_chkt_18.asl
+1c1,11
+< Lexical and/or syntactical errors have been found.
+---
+> Line 3:13 error: Operator 'or' with incompatible types.
+> Line 3:11 error: Parameter #2 with incompatible types in call to 'f'.
+> Line 4:6 error: The number of parameters in the call to 'f' does not match.
+> Line 5:6 error: The number of parameters in the call to 'f' does not match.
+> Line 6:2 error: The number of parameters in the call to 'g' does not match.
+> Line 12:4 error: The number of parameters in the call to 'f' does not match.
+> Line 12:2 error: The number of parameters in the call to 'g' does not match.
+> Line 18:6 error: Array access to a non array operand.
+> Line 18:8 error: Array access witn non integer index.
+> Line 25:4 error: Parameter #1 with incompatible types in call to 'p'.
+> Line 26:4 error: Parameter #1 with incompatible types in call to 'p'.
+END   examples-full/typecheck
+
+BEGIN examples-initial/codegen
+jpbasic_genc_01.asl
+jpbasic_genc_02.asl
+jpbasic_genc_03.asl
+jpbasic_genc_04.asl
+END   examples-initial/codegen
+
+BEGIN examples-full/codegen
+jp_genc_01.asl
+jp_genc_02.asl
+jp_genc_03.asl
+jp_genc_04.asl
+jp_genc_05.asl
+jp_genc_06.asl
+jp_genc_07.asl
+jp_genc_08.asl
+jp_genc_09.asl
+jp_genc_10.asl
+END   examples-full/codegen
+
+BEGIN examples-initial/execution
+jpbasic_genc_01.asl
+jpbasic_genc_02.asl
+jpbasic_genc_03.asl
+jpbasic_genc_04.asl
+END   examples-initial/execution
+
+BEGIN examples-full/execution
+jp_genc_01.asl
+jp_genc_02.asl
+jp_genc_03.asl
+0a1
+> x*y*2=24.
+jp_genc_04.asl
+0a1
+> 20.4
+jp_genc_05.asl
+0a1,3
+> 2
+> 126
+> 7.7
+jp_genc_06.asl
+0a1,3
+> 92h
+> 	l\a-3.4
+> 10525.7
+jp_genc_07.asl
+0a1,4
+> 6.71
+> 6.71
+> 67.1
+> 6.71
+jp_genc_08.asl
+0a1,31
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> 9
+> 0
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> 14
+> 16
+> 18
+> z:1
+> x[0]=0
+> x[1]=2
+> x[2]=4
+> x[3]=6
+> x[4]=8
+> x[5]=10
+> x[6]=12
+> x[7]=14
+> x[8]=16
+> x[9]=18
+jp_genc_09.asl
+0a1,8
+> 0!=1
+> 1!=1
+> 2!=2
+> 3!=6
+> 4!=24
+> 5!=120
+> 6!=720
+> 7!=5040
+jp_genc_10.asl
+0a1
+> -2025
+END   examples-full/execution

@@ -12,13 +12,14 @@
 class  AslLexer : public antlr4::Lexer {
 public:
   enum {
-    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, ASSIGN = 6, EQUAL = 7, 
-    GEQUAL = 8, LEQUAL = 9, GREATER = 10, LESSER = 11, NEQUAL = 12, NOT = 13, 
-    AND = 14, OR = 15, PLUS = 16, SUB = 17, MUL = 18, DIV = 19, VAR = 20, 
-    INT = 21, BOOL = 22, FLOAT = 23, CHAR = 24, IF = 25, THEN = 26, ELSE = 27, 
-    ENDIF = 28, WHILE = 29, DO = 30, ENDWHILE = 31, FUNC = 32, ENDFUNC = 33, 
-    READ = 34, WRITE = 35, RETURN = 36, BOOLVAL = 37, ID = 38, INTVAL = 39, 
-    FLOATVAL = 40, CHARVAL = 41, STRING = 42, COMMENT = 43, WS = 44
+    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, OPENARRAY = 6, OPENPAREN = 7, 
+    ASSIGN = 8, EQUAL = 9, GEQUAL = 10, LEQUAL = 11, GREATER = 12, LESSER = 13, 
+    NEQUAL = 14, NOT = 15, AND = 16, OR = 17, PLUS = 18, SUB = 19, MUL = 20, 
+    DIV = 21, VAR = 22, INT = 23, BOOL = 24, FLOAT = 25, CHAR = 26, ARRAY = 27, 
+    OF = 28, IF = 29, THEN = 30, ELSE = 31, ENDIF = 32, WHILE = 33, DO = 34, 
+    ENDWHILE = 35, FUNC = 36, ENDFUNC = 37, READ = 38, WRITE = 39, RETURN = 40, 
+    BOOLVAL = 41, ID = 42, INTVAL = 43, FLOATVAL = 44, CHARVAL = 45, STRING = 46, 
+    COMMENT = 47, WS = 48
   };
 
   AslLexer(antlr4::CharStream *input);

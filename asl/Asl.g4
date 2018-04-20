@@ -38,7 +38,7 @@ program : function+ EOF
 
 // A function has a name, a list of parameters and a list of statements
 function
-        : FUNC ID '(' (params)? ')' ((declarations statements (return_statement)? ENDFUNC) |  (':' type declarations statements return_statement ENDFUNC ) )
+        : FUNC ID '(' (params)? ')' ((declarations statements return_statement* ENDFUNC) |  (':' type declarations statements return_statement+ ENDFUNC ) )
         ;
 
 declarations
@@ -47,14 +47,15 @@ declarations
 
 variable_decl
         : VAR (ID)(','ID)* ':' type
+        | VAR (ID)(','ID)* ':' ARRAY '[' INTVAL ']' OF type
         ;
 
 params
 		: (param) (',' param)*
 		;
 
-param
-		: (ID ':' type)
+param   : (ID ':' type)
+        | ID ':' ARRAY '[' INTVAL ']' OF type 
 		;
 
 type    : INT
@@ -83,6 +84,7 @@ statement
         | WRITE expr ';'                      # writeExpr
           // Write a string
         | WRITE STRING ';'                    # writeString
+        | ID '(' (expr (','expr)*)? ')' ';'       # functionCall
         ;
         
 return_statement
@@ -111,12 +113,16 @@ expr    : '(' expr ')'							# parenth
         ;
 
 ident   : ID
+        | ID op=OPENARRAY expr ']'
+        | ID op=OPENPAREN (expr (','expr)*)? ')'
         ;
 
 //////////////////////////////////////////////////
 /// Lexer Rules
 //////////////////////////////////////////////////
 
+OPENARRAY : '[' ;
+OPENPAREN : '(' ;
 ASSIGN    : '=' ;
 EQUAL     : '==' ;
 GEQUAL	  : '>=' ;
@@ -136,6 +142,8 @@ INT       : 'int';
 BOOL	  : 'bool';
 FLOAT	  : 'float';
 CHAR	  : 'char';
+ARRAY     : 'array';
+OF        : 'of';
 IF        : 'if' ;
 THEN      : 'then' ;
 ELSE      : 'else' ;

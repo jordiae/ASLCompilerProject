@@ -61,6 +61,9 @@ public:
   virtual void enterWriteString(AslParser::WriteStringContext * /*ctx*/) override { }
   virtual void exitWriteString(AslParser::WriteStringContext * /*ctx*/) override { }
 
+  virtual void enterFunctionCall(AslParser::FunctionCallContext * /*ctx*/) override { }
+  virtual void exitFunctionCall(AslParser::FunctionCallContext * /*ctx*/) override { }
+
   virtual void enterReturnStmt(AslParser::ReturnStmtContext * /*ctx*/) override { }
   virtual void exitReturnStmt(AslParser::ReturnStmtContext * /*ctx*/) override { }
 
