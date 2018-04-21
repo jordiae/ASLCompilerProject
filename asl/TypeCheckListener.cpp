@@ -280,6 +280,7 @@ void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
         t1 = Types.getArrayElemType(t1);
       else{
         Errors.nonArrayInArrayAccess(ctx);
+        t1 = Types.createErrorTy(); // For jp_chkt_9. Here or in SymbolsListener?
       }
       if (not Types.isIntegerTy(getTypeDecor(ctx->expr(0)))){
         Errors.nonIntegerIndexInArrayAccess(ctx->expr(0));
