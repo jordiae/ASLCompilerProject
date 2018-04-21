@@ -128,6 +128,9 @@ public:
   void enterReturnStmt(AslParser::ReturnStmtContext *ctx);
   void exitReturnStmt(AslParser::ReturnStmtContext *ctx);
 
+  /*void enterFunctionCall(AslParser::FunctionCallContext * ctx);
+  void exitFunctionCall(AslParser::FunctionCallContext * ctx);*/
+
 
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);

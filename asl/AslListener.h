@@ -59,9 +59,6 @@ public:
   virtual void enterWriteString(AslParser::WriteStringContext *ctx) = 0;
   virtual void exitWriteString(AslParser::WriteStringContext *ctx) = 0;
 
-  virtual void enterFunctionCall(AslParser::FunctionCallContext *ctx) = 0;
-  virtual void exitFunctionCall(AslParser::FunctionCallContext *ctx) = 0;
-
   virtual void enterReturnStmt(AslParser::ReturnStmtContext *ctx) = 0;
   virtual void exitReturnStmt(AslParser::ReturnStmtContext *ctx) = 0;
 

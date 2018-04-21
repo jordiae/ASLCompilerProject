@@ -77,14 +77,15 @@ statement
           // while statement
         | WHILE expr DO statements ENDWHILE   # whileStmt
           // A function/procedure call has a list of arguments in parenthesis (possibly empty)
-        | ident '(' ')' ';'                   # procCall
+        //| ident '(' ')' ';'                   # procCall
+        | ident '(' (expr (','expr)*)? ')' ';'                  # procCall
           // Read a variable
         | READ left_expr ';'                  # readStmt
           // Write an expression
         | WRITE expr ';'                      # writeExpr
           // Write a string
         | WRITE STRING ';'                    # writeString
-        | ID '(' (expr (','expr)*)? ')' ';'       # functionCall
+        //| ident '(' (expr (','expr)*)? ')' ';'       # functionCall
         ;
         
 return_statement
