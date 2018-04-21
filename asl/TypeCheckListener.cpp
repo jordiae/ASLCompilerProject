@@ -147,6 +147,19 @@ void TypeCheckListener::exitProcCall(AslParser::ProcCallContext *ctx) {
   if (not Types.isFunctionTy(t1) and not Types.isErrorTy(t1)) {
     Errors.isNotCallable(ctx->ident());
   }
+  if (Types.isFunctionTy(t1) and not Types.isErrorTy(t1) and Types.getNumOfParameters(t1) != ctx->expr().size())
+            Errors.numberOfParameters(ctx);
+  if (Types.isFunctionTy(t1) and not Types.isErrorTy(t1) and Types.getNumOfParameters(t1) == ctx->expr().size()) { 
+            //std::cout << "T1 " << Types.to_string(t1) << std::endl; 
+            std::vector<TypesMgr::TypeId> paramTypes = Types.getFuncParamsTypes(t1);
+            for (std::size_t i = 0; i < paramTypes.size(); i++) {
+
+              //std::cout << Types.to_string(paramTypes[i]) << " " << Types.to_string(getTypeDecor(ctx->expr(i))) << std::endl;
+              if (not Types.equalTypes(paramTypes[i], getTypeDecor(ctx->expr(i))))
+              //if (paramTypes[i] != getTypeDecor(ctx->expr(i)))
+                Errors.incompatibleParameter(ctx->expr(i),i+1,ctx);
+            }
+  }
   DEBUG_EXIT();
 }
 
@@ -292,8 +305,24 @@ void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
           Errors.isNotFunction(ctx);
           t1 = Types.createErrorTy(); // For jp_chkt_8. Here or in SymbolsListener?
         }
-        else
+        else {
+          if (Types.getNumOfParameters(t1) != ctx->expr().size())
+            Errors.numberOfParameters(ctx);
+          //const std::vector<TypeId> & getFuncParamsTypes (TypeId tid)     const;
+          else { 
+            //std::cout << "T1 " << Types.to_string(t1) << std::endl; 
+            std::vector<TypesMgr::TypeId> paramTypes = Types.getFuncParamsTypes(t1);
+            for (std::size_t i = 0; i < paramTypes.size(); i++) {
+
+              //std::cout << Types.to_string(paramTypes[i]) << " " << Types.to_string(getTypeDecor(ctx->expr(i))) << std::endl;
+              if (not Types.equalTypes(paramTypes[i], getTypeDecor(ctx->expr(i))))
+              //if (paramTypes[i] != getTypeDecor(ctx->expr(i)))
+                Errors.incompatibleParameter(ctx->expr(i),i+1,ctx);
+            }
+          }
           t1 = Types.getFuncReturnType(t1);
+
+        }
       }
       else
         Errors.isNotCallable(ctx);

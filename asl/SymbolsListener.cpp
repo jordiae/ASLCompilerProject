@@ -90,9 +90,12 @@ void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
     //have to insert the types of the parameters
     if (ctx->params()) {
         unsigned int paramN = ctx->params()->param().size();
-        
         for (unsigned int i = 0; i < paramN; i++){
-            TypesMgr::TypeId t1 = getTypeDecor(ctx->params()->param(i)->type());
+          TypesMgr::TypeId t1;
+            if (ctx->params()->param(i)->ARRAY())
+             t1 = Types.createArrayTy(stoi(ctx->params()->param(i)-> INTVAL() -> getText()), getTypeDecor(ctx->params()->param(i)->type()));
+            else
+              t1 = getTypeDecor(ctx->params()->param(i)->type());
 		    lParamsTy.push_back(t1);
         }
     }
@@ -162,6 +165,7 @@ void SymbolsListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
     TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
     t1 = Types.createArrayTy(stoi(ctx->INTVAL()->getText()),t1);
     Symbols.addLocalVar(ident, t1);
+    //std::cout << Types.to_string(t1) << std::endl;
     }
   }
   }
@@ -312,6 +316,7 @@ void SymbolsListener::exitParam(AslParser::ParamContext *ctx) {
 	if (ctx->INTVAL()) {
     t1 = Types.createArrayTy(stoi(ctx->INTVAL()->getText()),t1);
   }
+    //std::cout << ident << " " << Types.to_string(t1) << std::endl;
   Symbols.addParameter(ident, t1);
 
   }
