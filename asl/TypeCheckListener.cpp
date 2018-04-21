@@ -286,10 +286,17 @@ void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
       }
     }
     else if (ctx->OPENPAREN()) {
-      if (Types.isFunctionTy(t1))
-        t1 = Types.getFuncReturnType(t1);
+      if (Types.isFunctionTy(t1)) {
+        if (Types.isVoidFunction(t1)) {
+          Errors.isNotFunction(ctx);
+          t1 = Types.createErrorTy(); // For jp_chkt_8. Here or in SymbolsListener?
+        }
+        else
+          t1 = Types.getFuncReturnType(t1);
+      }
       else
-        Errors.isNotFunction(ctx);
+        Errors.isNotCallable(ctx);
+
     }
 
 
