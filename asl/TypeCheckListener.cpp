@@ -392,9 +392,13 @@ void TypeCheckListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
    if (ctx->expr()){
     t1 = getTypeDecor(ctx->expr());
     //TypesMgr::TypeId t2 = getTypeDecor(ctx->type());
+    if ( (not Types.isErrorTy(t1)) and (not (t1 == t2) ) and not (Types.isFloatTy(t2) and Types.isIntegerTy(t1))) // last condition: jp_chkt_12
+      Errors.incompatibleReturn(ctx->expr());
   }
   else{
       t1 = Types.createVoidTy();
+      if ( (not Types.isErrorTy(t1)) and (not (t1 == t2) ) and not (Types.isFloatTy(t2) and Types.isIntegerTy(t1))) // last condition: jp_chkt_12
+        Errors.incompatibleReturn(ctx);
   }
   /*Types.dump(t2);
   if (t1 == Types.createIntegerTy()){
@@ -441,9 +445,10 @@ void TypeCheckListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
     std::cout << "functype funky" << std::endl;
   } */
 
-
-  if ( (not Types.isErrorTy(t1)) and (not (t1 == t2) ) and not (Types.isFloatTy(t2) and Types.isIntegerTy(t1))) // last condition: jp_chkt_12
+  
+  /*if ( (not Types.isErrorTy(t1)) and (not (t1 == t2) ) and not (Types.isFloatTy(t2) and Types.isIntegerTy(t1))) // last condition: jp_chkt_12
     Errors.incompatibleReturn(ctx);
+    */
   //putTypeDecor(ctx, t1);
 
   DEBUG_EXIT();
