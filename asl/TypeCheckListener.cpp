@@ -285,6 +285,23 @@ void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
         Errors.nonIntegerIndexInArrayAccess(ctx->expr(0));
       }
     }
+    else if (ctx->OPENPAREN()) {
+      if (Types.isFunctionTy(t1))
+        t1 = Types.getFuncReturnType(t1);
+      else
+        Errors.isNotFunction(ctx);
+    }
+
+
+
+  /*void isNotCallable                (antlr4::ParserRuleContext *ctx);
+  void isNotProcedure               (antlr4::ParserRuleContext *ctx);
+  void isNotFunction                (antlr4::ParserRuleContext *ctx);
+  void numberOfParameters           (antlr4::ParserRuleContext *ctx);
+  void incompatibleParameter        (antlr4::ParserRuleContext *pCtx,
+             unsigned int n,
+             antlr4::ParserRuleContext *cCtx);*/
+
 
     putTypeDecor(ctx, t1);
     if (Symbols.isFunctionClass(ident))
