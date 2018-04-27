@@ -102,6 +102,7 @@ expr    : '(' expr ')'							# parenth
 		| op=SUB expr								# unary
 		| expr op=(MUL|DIV) expr                    # arithmetic
         | expr op=(PLUS|SUB) expr                   # arithmetic
+        | expr op=MOD expr                          # arithmetic
         | op=NOT expr								# unary
         | expr op=(EQUAL|GEQUAL|LEQUAL|NEQUAL) expr        # relational
         | expr op=(GREATER|LESSER) expr				# relational
@@ -138,6 +139,7 @@ PLUS      : '+' ;
 SUB		  : '-';
 MUL       : '*';
 DIV		  : '/';
+MOD       : '%';
 VAR       : 'var';
 INT       : 'int';
 BOOL	  : 'bool';

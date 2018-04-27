@@ -210,16 +210,25 @@ void TypeCheckListener::enterArithmetic(AslParser::ArithmeticContext *ctx) {
 void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
 	  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
     TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
-    if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
-        ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2))))
-      Errors.incompatibleOperator(ctx->op);
-    //assuming int or float
-    TypesMgr::TypeId t;
-    if (Types.isFloatTy(t1) or Types.isFloatTy(t2))
-      t = Types.createFloatTy();
-    else
-      t = Types.createIntegerTy();
-    putTypeDecor(ctx, t);
+    if ( not (ctx->MOD()) ){
+      if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
+          ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2))))
+        Errors.incompatibleOperator(ctx->op);
+      //assuming int or float
+      TypesMgr::TypeId t;
+      if (Types.isFloatTy(t1) or Types.isFloatTy(t2))
+        t = Types.createFloatTy();
+      else
+        t = Types.createIntegerTy();
+      putTypeDecor(ctx, t);
+    }else{
+      if ( ((not Types.isErrorTy(t1)) and (not Types.isIntegerTy(t1))) or ((not Types.isErrorTy(t2)) and (not Types.isIntegerTy(t2))))
+        Errors.incompatibleOperator(ctx->op);
+      //if no error was thrown both expressions are integers
+      TypesMgr::TypeId t = Types.createIntegerTy();
+      putTypeDecor(ctx, t);
+    }
+    
     putIsLValueDecor(ctx, false);
     DEBUG_EXIT();
   

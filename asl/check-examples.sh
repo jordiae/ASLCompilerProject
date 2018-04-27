@@ -19,7 +19,7 @@ for f in ../examples/jp_chkt_*.asl; do
 done
 echo "END   examples-full/typecheck"
 
-: <<'END'
+
 
 echo ""
 echo "BEGIN examples-initial/codegen"
@@ -40,6 +40,7 @@ for f in ../examples/jp_genc_*.asl; do
     rm -f tmp.t
 done
 echo "END   examples-full/codegen"
+
 
 echo ""
 echo "BEGIN examples-initial/execution"
@@ -63,4 +64,3 @@ for f in ../examples/jp_genc_*.asl; do
 done
 echo "END   examples-full/execution"
 
-END

@@ -22,6 +22,13 @@ function main
    writec %1
    %1 = '='
    writec %1
+   pushparam 
+   pushparam x
+   pushparam y
+   call mul
+   popparam 
+   popparam 
+   popparam mul
    %2 = 2
    %3 = mul * %2
    writei %3

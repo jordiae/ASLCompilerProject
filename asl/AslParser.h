@@ -15,11 +15,11 @@ public:
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, OPENARRAY = 6, OPENPAREN = 7, 
     ASSIGN = 8, EQUAL = 9, GEQUAL = 10, LEQUAL = 11, GREATER = 12, LESSER = 13, 
     NEQUAL = 14, NOT = 15, AND = 16, OR = 17, PLUS = 18, SUB = 19, MUL = 20, 
-    DIV = 21, VAR = 22, INT = 23, BOOL = 24, FLOAT = 25, CHAR = 26, ARRAY = 27, 
-    OF = 28, IF = 29, THEN = 30, ELSE = 31, ENDIF = 32, WHILE = 33, DO = 34, 
-    ENDWHILE = 35, FUNC = 36, ENDFUNC = 37, READ = 38, WRITE = 39, RETURN = 40, 
-    BOOLVAL = 41, ID = 42, INTVAL = 43, FLOATVAL = 44, CHARVAL = 45, STRING = 46, 
-    COMMENT = 47, WS = 48
+    DIV = 21, MOD = 22, VAR = 23, INT = 24, BOOL = 25, FLOAT = 26, CHAR = 27, 
+    ARRAY = 28, OF = 29, IF = 30, THEN = 31, ELSE = 32, ENDIF = 33, WHILE = 34, 
+    DO = 35, ENDWHILE = 36, FUNC = 37, ENDFUNC = 38, READ = 39, WRITE = 40, 
+    RETURN = 41, BOOLVAL = 42, ID = 43, INTVAL = 44, FLOATVAL = 45, CHARVAL = 46, 
+    STRING = 47, COMMENT = 48, WS = 49
   };
 
   enum {
@@ -368,6 +368,7 @@ public:
     antlr4::tree::TerminalNode *DIV();
     antlr4::tree::TerminalNode *PLUS();
     antlr4::tree::TerminalNode *SUB();
+    antlr4::tree::TerminalNode *MOD();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
   };

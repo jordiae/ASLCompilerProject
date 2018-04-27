@@ -70,6 +70,12 @@ void CodeGenListener::enterFunction(AslParser::FunctionContext *ctx) {
 // to be modified
   DEBUG_ENTER();
   subroutine subr(ctx->ID()->getText());
+  /*TypesMgr::TypeId        t1 = getTypeDecor(ctx);
+  unsigned int n = Types.getNumOfParameters(t1);
+  for (unsigned int i = 0; i < n; i++){
+    subr.add_param()
+  }
+  */
   Code.add_subroutine(subr);
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
@@ -77,6 +83,15 @@ void CodeGenListener::enterFunction(AslParser::FunctionContext *ctx) {
 }
 void CodeGenListener::exitFunction(AslParser::FunctionContext *ctx) {
   subroutine & subrRef = Code.get_last_subroutine();
+  /*instructionList code;
+  TypesMgr::TypeId        t1 = getTypeDecor(ctx);
+  unsigned int n = Types.getNumOfParameters(t1);
+  if (n != 0 or Types.isVoidFunction(t1)) {
+    code = code || 
+  }
+  for (unsigned int i = 0; i < n; i++){
+  }
+  */
   instructionList code = getCodeDecor(ctx->statements());
   code = code || instruction::RETURN();
   subrRef.set_instructions(code);
@@ -399,9 +414,31 @@ void CodeGenListener::enterExprIdent(AslParser::ExprIdentContext *ctx) {
   DEBUG_ENTER();
 }
 void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
-  putAddrDecor(ctx, getAddrDecor(ctx->ident()));
-  putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
-  putCodeDecor(ctx, getCodeDecor(ctx->ident()));
+  if (ctx->ident()->OPENPAREN()){
+    instructionList  code = instruction::PUSH();
+    for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
+      std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
+      instructionList code1 = getCodeDecor(ctx->ident()->expr(i));
+      code = code || code1 || instruction::PUSH(addr1);
+    }
+    code = code || instruction::CALL(ctx->ident()->ID()->getText());
+    
+    for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
+      code = code || instruction::POP();
+    }
+    std::string     addr = getAddrDecor(ctx->ident());
+    code = code || instruction::POP(addr);
+    
+    putAddrDecor(ctx, addr);
+    putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
+    putCodeDecor(ctx, code);
+  }else{ //not taking into account OPENARRAY
+    //is an ID
+    putAddrDecor(ctx, getAddrDecor(ctx->ident()));
+    putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
+    putCodeDecor(ctx, getCodeDecor(ctx->ident()));
+  }
+  
   DEBUG_EXIT();
 }
 
