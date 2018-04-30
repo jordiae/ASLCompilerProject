@@ -70,12 +70,13 @@ void CodeGenListener::enterFunction(AslParser::FunctionContext *ctx) {
 // to be modified
   DEBUG_ENTER();
   subroutine subr(ctx->ID()->getText());
-  /*TypesMgr::TypeId        t1 = getTypeDecor(ctx);
-  unsigned int n = Types.getNumOfParameters(t1);
-  for (unsigned int i = 0; i < n; i++){
-    subr.add_param()
+  if (ctx->type())
+    subr.add_param("_return");
+  if (ctx->params()){
+    for (unsigned int i = 0; i < ctx->params()->param().size(); i++)
+      subr.add_param(ctx->params()->param(i)->ID()->getText());
   }
-  */
+  
   Code.add_subroutine(subr);
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
@@ -93,11 +94,35 @@ void CodeGenListener::exitFunction(AslParser::FunctionContext *ctx) {
   }
   */
   instructionList code = getCodeDecor(ctx->statements());
-  code = code || instruction::RETURN();
+  //code = code || instruction::RETURN();
+  for (unsigned int i=0; i < ctx->return_statement().size(); i++){
+    code = code || getCodeDecor(ctx->return_statement(i));
+  }
+  if (ctx->return_statement().size() == 0){
+    code = code || instruction::RETURN();
+  }
   subrRef.set_instructions(code);
   Symbols.popScope();
   DEBUG_EXIT();
 }
+
+void CodeGenListener::enterReturnStmt(AslParser::ReturnStmtContext *ctx){
+  DEBUG_ENTER();
+}
+void CodeGenListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx){
+  
+  if (ctx->expr()){
+    std::string     addr = getAddrDecor(ctx->expr());
+    instructionList code = getCodeDecor(ctx->expr());
+    instructionList code1 = code || instruction::LOAD("_return",addr) || instruction::RETURN();
+    putCodeDecor(ctx, code1);
+  }else{
+    instructionList code1 = instruction::RETURN();
+    putCodeDecor(ctx, code1);
+  }
+  DEBUG_EXIT();
+}
+
 
 void CodeGenListener::enterDeclarations(AslParser::DeclarationsContext *ctx) {
   DEBUG_ENTER();
@@ -162,7 +187,7 @@ void CodeGenListener::exitIfStmt(AslParser::IfStmtContext *ctx) {
   instructionList   code;
   std::string      addr1 = getAddrDecor(ctx->expr());
   instructionList  code1 = getCodeDecor(ctx->expr());
-  instructionList  code2 = getCodeDecor(ctx->statements());
+  instructionList  code2 = getCodeDecor(ctx->statements(0));
   std::string      label = codeCounters.newLabelIF();
   std::string labelEndIf = "endif"+label;
   code = code1 || instruction::FJUMP(addr1, labelEndIf) ||
@@ -426,7 +451,7 @@ void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
     for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
       code = code || instruction::POP();
     }
-    std::string     addr = getAddrDecor(ctx->ident());
+    std::string     addr = "%"+codeCounters.newTEMP();
     code = code || instruction::POP(addr);
     
     putAddrDecor(ctx, addr);

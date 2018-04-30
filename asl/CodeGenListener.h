@@ -128,6 +128,9 @@ public:
   void enterWhileStmt(AslParser::WhileStmtContext *ctx);
   void exitWhileStmt(AslParser::WhileStmtContext *ctx);
   
+  void enterReturnStmt(AslParser::ReturnStmtContext *ctx);
+  void exitReturnStmt(AslParser::ReturnStmtContext *ctx);
+  
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);
   // void visitTerminal(antlr4::tree::TerminalNode *node);
