@@ -8,29 +8,41 @@ function f
   vars
     x 1
     y 1
-    z 1
+    z 10
   endvars
 
+     %1 = 9
      %2 = 67
      %3 = a + %2
-     z = %3
+     z[%1] = %3
      %4 = 34
      x = %4
+     %5 = 3
      %6 = 56
-     %8 = %6 + z
-     z = %8
-     %10 = z <= x
-     %10 = not %10
-     ifFalse %10 goto endif1
-     %11 = 78
-     x = %11
+     %7 = 9
+     %8 = z[%7]
+     %9 = %6 + %8
+     z[%5] = %9
+     %10 = 3
+     %11 = z[%10]
+     %12 = %11 <= x
+     %12 = not %12
+     ifFalse %12 goto else1
+     %13 = 78
+     x = %13
      writef b
      writeln
+     goto endif1
+  label else1 :
+     %15 = 99
+     x = %15
   label endif1 :
-     writei z
+     %16 = 3
+     %17 = z[%16]
+     writei %17
      writeln
-     %16 = 1
-     _result = %16
+     %19 = 1
+     _result = %19
      return
 endfunction
 
