@@ -78,7 +78,7 @@ statement
         | WHILE expr DO statements ENDWHILE   # whileStmt
           // A function/procedure call has a list of arguments in parenthesis (possibly empty)
         //| ident '(' ')' ';'                   # procCall
-        | ident '(' (expr (','expr)*)? ')' ';'                  # procCall
+        | procedure  ';'                # procCall
           // Read a variable
         | READ left_expr ';'                  # readStmt
           // Write an expression
@@ -95,29 +95,32 @@ return_statement
 // Grammar for left expressions (l-values in C++)
 left_expr
         : ident
+        | ID op=OPENARRAY expr ']'
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
-expr    : '(' expr ')'							# parenth
-		| op=SUB expr								# unary
-		| expr op=(MUL|DIV) expr                    # arithmetic
-        | expr op=(PLUS|SUB) expr                   # arithmetic
-        | expr op=MOD expr                          # arithmetic
-        | op=NOT expr								# unary
+expr    : '(' expr ')'						       	       # parenth
+		| op=SUB expr						               # unary
+		| expr op=(MUL|DIV) expr                           # arithmetic
+        | expr op=(PLUS|SUB) expr                          # arithmetic
+        | expr op=MOD expr                                 # arithmetic
+        | op=NOT expr								       # unary
         | expr op=(EQUAL|GEQUAL|LEQUAL|NEQUAL) expr        # relational
-        | expr op=(GREATER|LESSER) expr				# relational
-        | expr op=(OR|AND) expr				     	# boolean
-        | INTVAL                              # value
-        | FLOATVAL							  # value
-        | CHARVAL							  # value
-        | BOOLVAL							  # value
-        | ident                               # exprIdent
+        | expr op=(GREATER|LESSER) expr				       # relational
+        | expr op=(OR|AND) expr				     	       # boolean
+        | INTVAL                                           # value
+        | FLOATVAL							               # value
+        | CHARVAL							               # value
+        | BOOLVAL							               # value
+        | ident                                            # exprIdent
+        | ID op=OPENARRAY expr ']'                         # exprIdentArray
+        | procedure                                        # exprIdentFunc
         ;
 
 ident   : ID
-        | ID op=OPENARRAY expr ']'
-        | ID op=OPENPAREN (expr (','expr)*)? ')'
         ;
+        
+procedure: ID op=OPENPAREN (expr (','expr)*)? ')' ;
 
 //////////////////////////////////////////////////
 /// Lexer Rules

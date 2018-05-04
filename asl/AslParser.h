@@ -25,7 +25,8 @@ public:
   enum {
     RuleProgram = 0, RuleFunction = 1, RuleDeclarations = 2, RuleVariable_decl = 3, 
     RuleParams = 4, RuleParam = 5, RuleType = 6, RuleStatements = 7, RuleStatement = 8, 
-    RuleReturn_statement = 9, RuleLeft_expr = 10, RuleExpr = 11, RuleIdent = 12
+    RuleReturn_statement = 9, RuleLeft_expr = 10, RuleExpr = 11, RuleIdent = 12, 
+    RuleProcedure = 13
   };
 
   AslParser(antlr4::TokenStream *input);
@@ -50,7 +51,8 @@ public:
   class Return_statementContext;
   class Left_exprContext;
   class ExprContext;
-  class IdentContext; 
+  class IdentContext;
+  class ProcedureContext; 
 
   class  ProgramContext : public antlr4::ParserRuleContext {
   public:
@@ -199,9 +201,7 @@ public:
   public:
     ProcCallContext(StatementContext *ctx);
 
-    IdentContext *ident();
-    std::vector<ExprContext *> expr();
-    ExprContext* expr(size_t i);
+    ProcedureContext *procedure();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
   };
@@ -304,9 +304,13 @@ public:
 
   class  Left_exprContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *op = nullptr;;
     Left_exprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdentContext *ident();
+    antlr4::tree::TerminalNode *ID();
+    ExprContext *expr();
+    antlr4::tree::TerminalNode *OPENARRAY();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -355,6 +359,18 @@ public:
     ExprIdentContext(ExprContext *ctx);
 
     IdentContext *ident();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+  };
+
+  class  ExprIdentArrayContext : public ExprContext {
+  public:
+    ExprIdentArrayContext(ExprContext *ctx);
+
+    antlr4::Token *op = nullptr;
+    antlr4::tree::TerminalNode *ID();
+    ExprContext *expr();
+    antlr4::tree::TerminalNode *OPENARRAY();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
   };
@@ -416,18 +432,22 @@ public:
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
   };
 
+  class  ExprIdentFuncContext : public ExprContext {
+  public:
+    ExprIdentFuncContext(ExprContext *ctx);
+
+    ProcedureContext *procedure();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+  };
+
   ExprContext* expr();
   ExprContext* expr(int precedence);
   class  IdentContext : public antlr4::ParserRuleContext {
   public:
-    antlr4::Token *op = nullptr;;
     IdentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *ID();
-    std::vector<ExprContext *> expr();
-    ExprContext* expr(size_t i);
-    antlr4::tree::TerminalNode *OPENARRAY();
-    antlr4::tree::TerminalNode *OPENPAREN();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -435,6 +455,23 @@ public:
   };
 
   IdentContext* ident();
+
+  class  ProcedureContext : public antlr4::ParserRuleContext {
+  public:
+    antlr4::Token *op = nullptr;;
+    ProcedureContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *ID();
+    antlr4::tree::TerminalNode *OPENPAREN();
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  ProcedureContext* procedure();
 
 
   virtual bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;

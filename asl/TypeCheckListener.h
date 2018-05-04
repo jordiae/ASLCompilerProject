@@ -64,6 +64,9 @@ public:
 
   void enterFunction(AslParser::FunctionContext *ctx);
   void exitFunction(AslParser::FunctionContext *ctx);
+  
+  void enterProcedure(AslParser::ProcedureContext *ctx);
+  void exitProcedure(AslParser::ProcedureContext *ctx);
 
   void enterDeclarations(AslParser::DeclarationsContext *ctx);
   void exitDeclarations(AslParser::DeclarationsContext *ctx);
@@ -107,6 +110,12 @@ public:
   void enterValue(AslParser::ValueContext *ctx);
   void exitValue(AslParser::ValueContext *ctx);
 
+  void enterExprIdentArray(AslParser::ExprIdentArrayContext *ctx);
+  void exitExprIdentArray(AslParser::ExprIdentArrayContext *ctx);
+  
+  void enterExprIdentFunc(AslParser::ExprIdentFuncContext *ctx);
+  void exitExprIdentFunc(AslParser::ExprIdentFuncContext *ctx);
+  
   void enterExprIdent(AslParser::ExprIdentContext *ctx);
   void exitExprIdent(AslParser::ExprIdentContext *ctx);
 

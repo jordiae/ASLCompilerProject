@@ -200,13 +200,37 @@ void CodeGenListener::enterProcCall(AslParser::ProcCallContext *ctx) {
   DEBUG_ENTER();
 }
 void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
-  instructionList code;
-  // std::string name = ctx->ident()->ID()->getSymbol()->getText();
-  std::string name = ctx->ident()->getText();
-  code = instruction::CALL(name);
+
+  instructionList  code;
+  for (unsigned int i = 0; i < ctx->procedure()->expr().size(); i++){
+    std::string     addr1 = getAddrDecor(ctx->procedure()->expr(i));
+    instructionList code1 = getCodeDecor(ctx->procedure()->expr(i));
+    code = code || code1 || instruction::PUSH(addr1);
+  }
+  code = code || instruction::CALL(ctx->procedure()->ID()->getText());
+  
+  for (unsigned int i = 0; i < ctx->procedure()->expr().size(); i++){
+    code = code || instruction::POP();
+  }
+
   putCodeDecor(ctx, code);
+  
+/*
+  putAddrDecor(ctx, getAddrDecor(ctx->procedure()));
+  putOffsetDecor(ctx, getOffsetDecor(ctx->procedure()));
+  putCodeDecor(ctx, getCodeDecor(ctx->procedure()));
+*/
   DEBUG_EXIT();
 }
+
+void CodeGenListener::enterProcedure(AslParser::ProcedureContext *ctx){
+  DEBUG_ENTER();
+}
+void CodeGenListener::exitProcedure(AslParser::ProcedureContext *ctx){
+
+  DEBUG_EXIT();
+}
+
 
 void CodeGenListener::enterReadStmt(AslParser::ReadStmtContext *ctx) {
   DEBUG_ENTER();
@@ -439,30 +463,46 @@ void CodeGenListener::enterExprIdent(AslParser::ExprIdentContext *ctx) {
   DEBUG_ENTER();
 }
 void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
-  if (ctx->ident()->OPENPAREN()){
+  //is an ID
+  putAddrDecor(ctx, getAddrDecor(ctx->ident()));
+  putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
+  putCodeDecor(ctx, getCodeDecor(ctx->ident()));
+  
+  DEBUG_EXIT();
+}
+
+void CodeGenListener::enterExprIdentArray(AslParser::ExprIdentArrayContext *ctx) {
+  DEBUG_ENTER();
+}
+void CodeGenListener::exitExprIdentArray(AslParser::ExprIdentArrayContext *ctx) {
+  
+  
+  DEBUG_EXIT();
+}
+
+void CodeGenListener::enterExprIdentFunc(AslParser::ExprIdentFuncContext *ctx) {
+  DEBUG_ENTER();
+}
+void CodeGenListener::exitExprIdentFunc(AslParser::ExprIdentFuncContext *ctx) { 
+  
+  if (ctx->procedure()->OPENPAREN()){
     instructionList  code = instruction::PUSH();
-    for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
-      std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
-      instructionList code1 = getCodeDecor(ctx->ident()->expr(i));
+    for (unsigned int i = 0; i < ctx->procedure()->expr().size(); i++){
+      std::string     addr1 = getAddrDecor(ctx->procedure()->expr(i));
+      instructionList code1 = getCodeDecor(ctx->procedure()->expr(i));
       code = code || code1 || instruction::PUSH(addr1);
     }
-    code = code || instruction::CALL(ctx->ident()->ID()->getText());
+    code = code || instruction::CALL(ctx->procedure()->ID()->getText());
     
-    for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
+    for (unsigned int i = 0; i < ctx->procedure()->expr().size(); i++){
       code = code || instruction::POP();
     }
     std::string     addr = "%"+codeCounters.newTEMP();
     code = code || instruction::POP(addr);
     
     putAddrDecor(ctx, addr);
-    putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
     putCodeDecor(ctx, code);
-  }else{ //not taking into account OPENARRAY
-    //is an ID
-    putAddrDecor(ctx, getAddrDecor(ctx->ident()));
-    putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
-    putCodeDecor(ctx, getCodeDecor(ctx->ident()));
-  }
+  } 
   
   DEBUG_EXIT();
 }

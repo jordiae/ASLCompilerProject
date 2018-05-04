@@ -76,6 +76,9 @@ public:
   virtual void enterExprIdent(AslParser::ExprIdentContext * /*ctx*/) override { }
   virtual void exitExprIdent(AslParser::ExprIdentContext * /*ctx*/) override { }
 
+  virtual void enterExprIdentArray(AslParser::ExprIdentArrayContext * /*ctx*/) override { }
+  virtual void exitExprIdentArray(AslParser::ExprIdentArrayContext * /*ctx*/) override { }
+
   virtual void enterArithmetic(AslParser::ArithmeticContext * /*ctx*/) override { }
   virtual void exitArithmetic(AslParser::ArithmeticContext * /*ctx*/) override { }
 
@@ -88,8 +91,14 @@ public:
   virtual void enterValue(AslParser::ValueContext * /*ctx*/) override { }
   virtual void exitValue(AslParser::ValueContext * /*ctx*/) override { }
 
+  virtual void enterExprIdentFunc(AslParser::ExprIdentFuncContext * /*ctx*/) override { }
+  virtual void exitExprIdentFunc(AslParser::ExprIdentFuncContext * /*ctx*/) override { }
+
   virtual void enterIdent(AslParser::IdentContext * /*ctx*/) override { }
   virtual void exitIdent(AslParser::IdentContext * /*ctx*/) override { }
+
+  virtual void enterProcedure(AslParser::ProcedureContext * /*ctx*/) override { }
+  virtual void exitProcedure(AslParser::ProcedureContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

@@ -74,6 +74,9 @@ public:
   virtual void enterExprIdent(AslParser::ExprIdentContext *ctx) = 0;
   virtual void exitExprIdent(AslParser::ExprIdentContext *ctx) = 0;
 
+  virtual void enterExprIdentArray(AslParser::ExprIdentArrayContext *ctx) = 0;
+  virtual void exitExprIdentArray(AslParser::ExprIdentArrayContext *ctx) = 0;
+
   virtual void enterArithmetic(AslParser::ArithmeticContext *ctx) = 0;
   virtual void exitArithmetic(AslParser::ArithmeticContext *ctx) = 0;
 
@@ -86,8 +89,14 @@ public:
   virtual void enterValue(AslParser::ValueContext *ctx) = 0;
   virtual void exitValue(AslParser::ValueContext *ctx) = 0;
 
+  virtual void enterExprIdentFunc(AslParser::ExprIdentFuncContext *ctx) = 0;
+  virtual void exitExprIdentFunc(AslParser::ExprIdentFuncContext *ctx) = 0;
+
   virtual void enterIdent(AslParser::IdentContext *ctx) = 0;
   virtual void exitIdent(AslParser::IdentContext *ctx) = 0;
+
+  virtual void enterProcedure(AslParser::ProcedureContext *ctx) = 0;
+  virtual void exitProcedure(AslParser::ProcedureContext *ctx) = 0;
 
 
 };
