@@ -1,80 +1,82 @@
-function f1
+function f
   params
+    _result
     a
     b
   endparams
 
   vars
-    c 1
-    d 1
-    found 1
+    x 1
+    y 1
+    z 1
   endvars
 
-     %1 = 0
-     found = %1
-     %2 = 0.7
-     %4 = float a
-     %3 = %4 +. %2
-     c = %3
-     %5 = 0
-     d = %5
-     %6 = a + d
-     %8 = float %6
-     %7 = %8 <=. c
-     %7 = not %7
-     %9 = not found
-     %10 = %9 or %7
+     %2 = 67
+     %3 = a + %2
+     z = %3
+     %4 = 34
+     x = %4
+     %6 = 56
+     %8 = %6 + z
+     z = %8
+     %10 = z <= x
+     %10 = not %10
      ifFalse %10 goto endif1
+     %11 = 78
+     x = %11
+     writef b
+     writeln
+  label endif1 :
+     writei z
+     writeln
+     %16 = 1
+     _result = %16
+     return
+endfunction
+
+function fz
+  params
+    r
+  endparams
+
   label startwhile1 :
-     %11 = 0
-     %12 = b <= %11
-     %12 = not %12
-     ifFalse %12 goto endwhile1
-     %13 = 1
-     %14 = b - %13
-     b = %14
-     %15 = 1
-     found = %15
+     %1 = 0
+     %2 = r <= %1
+     %2 = not %2
+     ifFalse %2 goto endwhile1
+     %3 = 1
+     %4 = r - %3
+     r = %4
      goto startwhile1
   label endwhile1 :
-  label endif1 :
-     %16 = 11
-     %17 = b <= %16
-     ifFalse %17 goto endif2
-     %18 = 2
-     %20 = float %18
-     %19 = %20 *. c
-     %21 = 1
-     %23 = float %21
-     %22 = %19 +. %23
-     c = %22
-  label endif2 :
-     writef c
-     writeln
      return
 endfunction
 
 function main
   vars
     a 1
-    b 1
   endvars
 
-   %1 = 4
-   a = %1
-   %2 = 2
-   %3 = %2 * a
-   %4 = 1
-   %5 = %3 + %4
-   b = %5
-   pushparam b
-   %6 = 3
-   %7 = %6 + b
-   pushparam %7
-   call f1
-   popparam 
-   popparam 
-   return
+     pushparam 
+     %1 = 3
+     pushparam %1
+     %2 = 2
+     pushparam %2
+     call f
+     popparam 
+     popparam 
+     popparam %3
+     ifFalse %3 goto endif1
+     %4 = 3.7
+     %6 = float a
+     %5 = %6 +. %4
+     %7 = 4
+     %9 = float %7
+     %8 = %5 +. %9
+     writef %8
+     writeln
+  label endif1 :
+     return
 endfunction
 
 
