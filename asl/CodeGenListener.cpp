@@ -138,8 +138,10 @@ void CodeGenListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
   subroutine       & subrRef = Code.get_last_subroutine();
   TypesMgr::TypeId        t1 = getTypeDecor(ctx->type());
   std::size_t           size = Types.getSizeOfType(t1);
+  if (ctx->ARRAY())
+    size *= std::stoi(ctx->INTVAL()->getText());
   for (unsigned int i = 0; i < ctx->ID().size(); i++)
-	subrRef.add_var(ctx->ID(i)->getText(), size);
+	  subrRef.add_var(ctx->ID(i)->getText(), size);
   DEBUG_EXIT();
 }
 
@@ -167,15 +169,29 @@ void CodeGenListener::enterAssignStmt(AslParser::AssignStmtContext *ctx) {
 }
 void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
   instructionList  code;
-  std::string     addr1 = getAddrDecor(ctx->left_expr());
-  // std::string     offs1 = getOffsetDecor(ctx->left_expr());
-  instructionList code1 = getCodeDecor(ctx->left_expr());
-  // TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
-  std::string     addr2 = getAddrDecor(ctx->expr());
-  // std::string     offs2 = getOffsetDecor(ctx->expr());
-  instructionList code2 = getCodeDecor(ctx->expr());
-  // TypesMgr::TypeId tid2 = getTypeDecor(ctx->expr());
-  code = code1 || code2 || instruction::LOAD(addr1, addr2);
+  std::string     addr1;
+  instructionList code1;
+  std::string     addr2;
+  instructionList code2;
+  if (ctx->left_expr()->ident()){
+    addr1 = getAddrDecor(ctx->left_expr());
+    // std::string     offs1 = getOffsetDecor(ctx->left_expr());
+    code1 = getCodeDecor(ctx->left_expr());
+    // TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
+    addr2 = getAddrDecor(ctx->expr());
+    // std::string     offs2 = getOffsetDecor(ctx->expr());
+    code2 = getCodeDecor(ctx->expr());
+    // TypesMgr::TypeId tid2 = getTypeDecor(ctx->expr());
+    code = code1 || code2 || instruction::LOAD(addr1, addr2);
+  }else{
+    addr1 = getAddrDecor(ctx->left_expr()->expr());
+    code1 = getCodeDecor(ctx->left_expr()->expr());
+    addr2 = getAddrDecor(ctx->expr());
+    code2 = getCodeDecor(ctx->expr());
+    code = code1 || code2 || instruction::XLOAD(ctx->left_expr()->ID()->getText(), addr1, addr2);
+  
+  }
+  
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
@@ -202,10 +218,20 @@ void CodeGenListener::enterProcCall(AslParser::ProcCallContext *ctx) {
 void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
 
   instructionList  code;
+  std::string ident = ctx->procedure()->ID()->getText();
+  TypesMgr::TypeId t1 = Symbols.getType(ident);
+  std::vector<TypesMgr::TypeId> paramTypes = Types.getFuncParamsTypes(t1);
+  
   for (unsigned int i = 0; i < ctx->procedure()->expr().size(); i++){
     std::string     addr1 = getAddrDecor(ctx->procedure()->expr(i));
     instructionList code1 = getCodeDecor(ctx->procedure()->expr(i));
-    code = code || code1 || instruction::PUSH(addr1);
+    code = code || code1;
+    if (Types.isFloatTy(paramTypes[i]) and Types.isIntegerTy(getTypeDecor(ctx->procedure()->expr(i)))){
+      code = code || instruction::FLOAT(addr1, addr1);
+    }else if(Types.isArrayTy( getTypeDecor(ctx->procedure()->expr(i)) )){
+      code = code || instruction::ALOAD(addr1,addr1);
+    }
+    code = code || instruction::PUSH(addr1);
   }
   code = code || instruction::CALL(ctx->procedure()->ID()->getText());
   
@@ -236,12 +262,27 @@ void CodeGenListener::enterReadStmt(AslParser::ReadStmtContext *ctx) {
   DEBUG_ENTER();
 }
 void CodeGenListener::exitReadStmt(AslParser::ReadStmtContext *ctx) {
+ 
   instructionList  code;
-  std::string     addr1 = getAddrDecor(ctx->left_expr());
-  // std::string     offs1 = getOffsetDecor(ctx->left_expr());
-  instructionList code1 = getCodeDecor(ctx->left_expr());
-  // TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
-  code = code1 || instruction::READI(addr1);
+  std::string     addr1;
+  instructionList code1;
+  std::string     addr2;
+  instructionList code2;
+  if (ctx->left_expr()->ident()){
+    addr1 = getAddrDecor(ctx->left_expr());
+    // std::string     offs1 = getOffsetDecor(ctx->left_expr());
+    code1 = getCodeDecor(ctx->left_expr());
+    // TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
+    code = code1 || instruction::READI(addr1);
+  }else{
+    addr1 = getAddrDecor(ctx->left_expr()->expr());
+    code1 = getCodeDecor(ctx->left_expr()->expr());
+    addr2 = "%"+codeCounters.newTEMP();
+    code2 = instruction::READI(addr2);
+    code = code1 || code2 || instruction::XLOAD(ctx->left_expr()->ID()->getText(), addr1, addr2);
+  
+  }
+  
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
@@ -475,7 +516,14 @@ void CodeGenListener::enterExprIdentArray(AslParser::ExprIdentArrayContext *ctx)
   DEBUG_ENTER();
 }
 void CodeGenListener::exitExprIdentArray(AslParser::ExprIdentArrayContext *ctx) {
+  std::string     addr = "%"+codeCounters.newTEMP();
+  std::string     addr1 = getAddrDecor(ctx->expr());
+  instructionList code1 = getCodeDecor(ctx->expr());
   
+  instructionList code = code1 || instruction::LOADX(addr, ctx->ID()->getText(), addr1);
+  
+  putAddrDecor(ctx, addr);
+  putCodeDecor(ctx, code);
   
   DEBUG_EXIT();
 }
@@ -486,11 +534,22 @@ void CodeGenListener::enterExprIdentFunc(AslParser::ExprIdentFuncContext *ctx) {
 void CodeGenListener::exitExprIdentFunc(AslParser::ExprIdentFuncContext *ctx) { 
   
   if (ctx->procedure()->OPENPAREN()){
+  
     instructionList  code = instruction::PUSH();
+    std::string ident = ctx->procedure()->ID()->getText();
+    TypesMgr::TypeId t1 = Symbols.getType(ident);
+    std::vector<TypesMgr::TypeId> paramTypes = Types.getFuncParamsTypes(t1);
+    
     for (unsigned int i = 0; i < ctx->procedure()->expr().size(); i++){
       std::string     addr1 = getAddrDecor(ctx->procedure()->expr(i));
       instructionList code1 = getCodeDecor(ctx->procedure()->expr(i));
-      code = code || code1 || instruction::PUSH(addr1);
+      code = code || code1;
+      if (Types.isFloatTy(paramTypes[i]) and Types.isIntegerTy(getTypeDecor(ctx->procedure()->expr(i)))){
+        code = code || instruction::FLOAT(addr1, addr1);
+      }else if(Types.isArrayTy( getTypeDecor(ctx->procedure()->expr(i)) )){
+        code = code || instruction::ALOAD(addr1,addr1);
+      }
+      code = code || instruction::PUSH(addr1);
     }
     code = code || instruction::CALL(ctx->procedure()->ID()->getText());
     

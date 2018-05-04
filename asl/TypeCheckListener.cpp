@@ -170,7 +170,7 @@ void TypeCheckListener::exitProcCall(AslParser::ProcCallContext *ctx) {
               for (std::size_t i = 0; i < paramTypes.size(); i++) {
 
                 //std::cout << Types.to_string(paramTypes[i]) << " " << Types.to_string(getTypeDecor(ctx->expr(i))) << std::endl;
-                if (not Types.equalTypes(paramTypes[i], getTypeDecor(ctx->procedure()->expr(i))))
+                if (not Types.equalTypes(paramTypes[i], getTypeDecor(ctx->procedure()->expr(i))) and not (Types.isFloatTy(paramTypes[i]) and Types.isIntegerTy(getTypeDecor(ctx->procedure()->expr(i)))))
                 //if (paramTypes[i] != getTypeDecor(ctx->expr(i)))
                   Errors.incompatibleParameter(ctx->procedure()->expr(i),i+1,ctx);
               }
@@ -375,7 +375,7 @@ void TypeCheckListener::exitExprIdentFunc(AslParser::ExprIdentFuncContext *ctx) 
             for (std::size_t i = 0; i < paramTypes.size(); i++) {
 
               //std::cout << Types.to_string(paramTypes[i]) << " " << Types.to_string(getTypeDecor(ctx->expr(i))) << std::endl;
-              if (not Types.equalTypes(paramTypes[i], getTypeDecor(ctx->procedure()->expr(i))))
+              if (not Types.equalTypes(paramTypes[i], getTypeDecor(ctx->procedure()->expr(i))) and not (Types.isFloatTy(paramTypes[i]) and Types.isIntegerTy(getTypeDecor(ctx->procedure()->expr(i)))))
               //if (paramTypes[i] != getTypeDecor(ctx->expr(i)))
                 Errors.incompatibleParameter(ctx->procedure()->expr(i),i+1,ctx);
             }

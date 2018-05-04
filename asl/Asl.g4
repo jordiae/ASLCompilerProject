@@ -55,7 +55,7 @@ params
 		;
 
 param   : (ID ':' type)
-        | ID ':' ARRAY '[' INTVAL ']' OF type 
+        | ID ':' ARRAY '[' INTVAL ']' OF type
 		;
 
 type    : INT
