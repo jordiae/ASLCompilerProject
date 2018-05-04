@@ -202,11 +202,46 @@ void CodeGenListener::exitIfStmt(AslParser::IfStmtContext *ctx) {
 void CodeGenListener::enterProcCall(AslParser::ProcCallContext *ctx) {
   DEBUG_ENTER();
 }
+
+// | ident '(' (expr (','expr)*)? ')' ';'                  # procCall
+/*if (ctx->ident()->OPENPAREN()){
+    instructionList  code = instruction::PUSH();
+    for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
+      std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
+      instructionList code1 = getCodeDecor(ctx->ident()->expr(i));
+      code = code || code1 || instruction::PUSH(addr1);
+    }
+    code = code || instruction::CALL(ctx->ident()->ID()->getText());
+    
+    for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
+      code = code || instruction::POP();
+    }
+    // std::string     addr = getAddrDecor(ctx->ident());
+    // (temp reg, not function name)
+    std::string addr = "%" + codeCounters.newTEMP();
+    code = code || instruction::POP(addr);
+    
+    putAddrDecor(ctx, addr);
+    putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
+    putCodeDecor(ctx, code);
+  }*/
+
 void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
-  instructionList code;
+  // instructionList code = instruction::PUSH(); // Nope, because we don't care about the result (if any)
   // std::string name = ctx->ident()->ID()->getSymbol()->getText();
-  std::string name = ctx->ident()->getText();
-  code = instruction::CALL(name);
+  // similar to void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) { if (ctx->ident()->OPENPAREN()){
+  instructionList code;
+  for (unsigned int i = 0; i < ctx->expr().size(); i++){
+      std::string     addr1 = getAddrDecor(ctx->expr(i));
+      instructionList code1 = getCodeDecor(ctx->expr(i));
+      code = code || code1 || instruction::PUSH(addr1);
+  }
+  code = code || instruction::CALL(ctx->ident()->ID()->getText());
+  for (unsigned int i = 0; i < ctx->expr().size(); i++){
+      code = code || instruction::POP();
+  }
+  /*std::string name = ctx->ident()->getText();
+  code = instruction::CALL(name);*/
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
