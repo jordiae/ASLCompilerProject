@@ -250,28 +250,6 @@ void CodeGenListener::enterProcCall(AslParser::ProcCallContext *ctx) {
   DEBUG_ENTER();
 }
 
-// | ident '(' (expr (','expr)*)? ')' ';'                  # procCall
-/*if (ctx->ident()->OPENPAREN()){
-    instructionList  code = instruction::PUSH();
-    for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
-      std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
-      instructionList code1 = getCodeDecor(ctx->ident()->expr(i));
-      code = code || code1 || instruction::PUSH(addr1);
-    }
-    code = code || instruction::CALL(ctx->ident()->ID()->getText());
-    
-    for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
-      code = code || instruction::POP();
-    }
-    // std::string     addr = getAddrDecor(ctx->ident());
-    // (temp reg, not function name)
-    std::string addr = "%" + codeCounters.newTEMP();
-    code = code || instruction::POP(addr);
-    
-    putAddrDecor(ctx, addr);
-    putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
-    putCodeDecor(ctx, code);
-  }*/
 
 void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
   // instructionList code = instruction::PUSH(); // Nope, because we don't care about the result (if any)
@@ -279,9 +257,22 @@ void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
   // similar to void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) { if (ctx->ident()->OPENPAREN()){
   instructionList code;
   for (unsigned int i = 0; i < ctx->expr().size(); i++){
-      std::string     addr1 = getAddrDecor(ctx->expr(i));
-      instructionList code1 = getCodeDecor(ctx->expr(i));
-      code = code || code1 || instruction::PUSH(addr1);
+      // check int -> float for implicit conversion
+      TypesMgr::TypeId tid1 = getTypeDecor(ctx->expr(i)); // type of value to pass as parameter
+      TypesMgr::TypeId tid2 =  Types.getParameterType(getTypeDecor(ctx->ident()),i); // actual parameter type
+      if (Types.isIntegerTy(tid1) && Types.isFloatTy(tid2)) {
+        std::string     addr1 = getAddrDecor(ctx->expr(i));
+        instructionList code1 = getCodeDecor(ctx->expr(i));
+        std::string temp = "%"+codeCounters.newTEMP();
+        instructionList codeCast = instruction::FLOAT(temp, addr1);
+        code = code || code1 || codeCast || instruction::PUSH(temp);
+      }
+      else {
+        std::string     addr1 = getAddrDecor(ctx->expr(i));
+        instructionList code1 = getCodeDecor(ctx->expr(i));
+
+        code = code || code1 || instruction::PUSH(addr1);
+      }
   }
   code = code || instruction::CALL(ctx->ident()->ID()->getText());
   for (unsigned int i = 0; i < ctx->expr().size(); i++){
@@ -523,13 +514,46 @@ void CodeGenListener::exitValue(AslParser::ValueContext *ctx) {
 void CodeGenListener::enterExprIdent(AslParser::ExprIdentContext *ctx) {
   DEBUG_ENTER();
 }
+
+/*
+// check int -> float for implicit conversion (similar to procCall)
+      TypesMgr::TypeId tid1 = getTypeDecor(ctx->expr(i)); // type of value to pass as parameter
+      TypesMgr::TypeId tid2 =  Types.getParameterType(getTypeDecor(ctx->ident()),i); // actual parameter type
+      if (Types.isIntegerTy(tid1) && Types.isFloatTy(tid2)) {
+        std::string     addr1 = getAddrDecor(ctx->expr(i));
+        instructionList code1 = getCodeDecor(ctx->expr(i));
+        std::string temp = "%"+codeCounters.newTEMP();
+        instructionList codeCast = instruction::FLOAT(temp, addr1);
+        code = code || code1 || codeCast || instruction::PUSH(temp);
+      }
+      else {
+        std::string     addr1 = getAddrDecor(ctx->expr(i));
+        instructionList code1 = getCodeDecor(ctx->expr(i));
+
+        code = code || code1 || instruction::PUSH(addr1);
+      }*/
+
+
 void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
   if (ctx->ident()->OPENPAREN()){
     instructionList  code = instruction::PUSH();
     for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
-      std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
-      instructionList code1 = getCodeDecor(ctx->ident()->expr(i));
-      code = code || code1 || instruction::PUSH(addr1);
+      // check int -> float for implicit conversion (similar to procCall)
+      TypesMgr::TypeId tid1 = getTypeDecor(ctx->ident()->expr(i)); // type of value to pass as parameter
+      //TypesMgr::TypeId tid2 =  Types.getParameterType(getTypeDecor(ctx->ident()),i); // actual parameter type
+      TypesMgr::TypeId tid2 =  Types.getParameterType(Symbols.getType(ctx->ident()->ID()->getText()),i); // actual parameter type
+      if (Types.isIntegerTy(tid1) && Types.isFloatTy(tid2)) {
+        std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
+        instructionList code1 = getCodeDecor(ctx->ident()->expr(i));
+        std::string temp = "%"+codeCounters.newTEMP();
+        instructionList codeCast = instruction::FLOAT(temp, addr1);
+        code = code || code1 || codeCast || instruction::PUSH(temp);
+      }
+      else {
+        std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
+        instructionList code1 = getCodeDecor(ctx->ident()->expr(i));
+        code = code || code1 || instruction::PUSH(addr1);
+      }
     }
     code = code || instruction::CALL(ctx->ident()->ID()->getText());
     
