@@ -178,7 +178,19 @@ void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
     // create new instruction "a1[a2] = a3" 
     //static instruction XLOAD(const std::string &a1, const std::string &a2, const std::string &a3);
     instructionList  code;
-    std::string     addr1 = getAddrDecor(ctx->left_expr()->ident());
+    //std::string     addr1 = getAddrDecor(ctx->left_expr()->ident());
+
+    std::string addr1;
+    if (Symbols.isParameterClass(ctx->left_expr()->ident()->ID()->getText())) { // for jp_genc_07, load pointer of array (param). todo: it should only be done once. still, it doesn't work
+      addr1 = "%" + codeCounters.newTEMP();
+      code = instruction::LOAD(addr1,getAddrDecor(ctx->left_expr()->ident()));
+      putAddrDecor(ctx->left_expr()->ident(), addr1);
+      
+    }
+    else {
+      //addr2 = getAddrDecor(ctx->ident());//->ID());
+      addr1 = getAddrDecor(ctx->left_expr()->ident());
+    }
 
     // std::string     offs1 = getOffsetDecor(ctx->left_expr());
     //instructionList code1 = getCodeDecor(ctx->left_expr());
@@ -195,7 +207,7 @@ void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
     instructionList codeL = instruction::XLOAD(addr1,addrIndex,addr2);
 
     //code = code1 || code2 || instruction::LOAD(addr1, addr2);
-    code = codeIndex || code2 || codeL;
+    code = code || codeIndex || code2 || codeL;
     putCodeDecor(ctx, code);
 
   }
@@ -273,6 +285,18 @@ void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
         instructionList codeCast = instruction::FLOAT(temp, addr1);
         code = code || code1 || codeCast || instruction::PUSH(temp);
       }
+      else if (Types.isArrayTy(tid2)) { // array as a ref, the same should be done for exitexpr function
+        std::string     addr1 = getAddrDecor(ctx->expr(i));
+        //instructionList code1 = getCodeDecor(ctx->expr(i));
+
+        std::string temp = "%"+codeCounters.newTEMP();        
+
+        // create new instruction "a1 = &a2" 
+        // static instruction ALOAD(const std::string &a1, const std::string &a2);
+        instructionList code1 = instruction::ALOAD(temp,addr1);
+
+        code = code || code1 || instruction::PUSH(temp);
+      }
       else {
         std::string     addr1 = getAddrDecor(ctx->expr(i));
         instructionList code1 = getCodeDecor(ctx->expr(i));
@@ -322,7 +346,16 @@ void CodeGenListener::exitReadStmt(AslParser::ReadStmtContext *ctx) {
 
     std::string temp = "%"+codeCounters.newTEMP();
 
-    instructionList codeR = instruction::READI(temp); // TODO: not only READI, other cases
+    //instructionList codeR = instruction::READI(temp); // TODO: not only READI, other cases
+    // like this?
+    instructionList codeR;
+    TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
+
+    if (Types.isIntegerTy(tid1) or Types.isBooleanTy(tid1))
+      codeR = instruction::READI(temp);
+    else if (Types.isFloatTy(tid1))
+      codeR = instruction::READF(temp);
+
     
     instructionList codeL = instruction::XLOAD(addr1,addrIndex,temp);
 
@@ -599,6 +632,19 @@ void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
         instructionList codeCast = instruction::FLOAT(temp, addr1);
         code = code || code1 || codeCast || instruction::PUSH(temp);
       }
+      else if (Types.isArrayTy(tid2)) { // array as a ref, as in proccall (exactly the same?)
+        // std::string     addr1 = getAddrDecor(ctx->expr(i));
+        std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
+        //instructionList code1 = getCodeDecor(ctx->expr(i));
+
+        std::string temp = "%"+codeCounters.newTEMP();        
+
+        // create new instruction "a1 = &a2" 
+        // static instruction ALOAD(const std::string &a1, const std::string &a2);
+        instructionList code1 = instruction::ALOAD(temp,addr1);
+
+        code = code || code1 || instruction::PUSH(temp);
+      }
       else {
         std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
         instructionList code1 = getCodeDecor(ctx->ident()->expr(i));
@@ -626,7 +672,17 @@ void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
     //static instruction LOADX(const std::string &a1, const std::string &a2, const std::string &a3);
     instructionList code = getCodeDecor(ctx->ident()->expr(0));
     std::string addr1 = "%" + codeCounters.newTEMP();
-    std::string addr2 = getAddrDecor(ctx->ident());//->ID());
+
+    std::string addr2;
+    if (Symbols.isParameterClass(ctx->ident()->ID()->getText())) { // for jp_genc_07, load pointer of array (param), todo ? should the same be done in assignment? yes, at least left_expr
+      addr2 = "%" + codeCounters.newTEMP();
+      code = code || instruction::LOAD(addr2,getAddrDecor(ctx->ident()));
+      putAddrDecor(ctx->ident(), addr2);
+      
+    }
+    else {
+      addr2 = getAddrDecor(ctx->ident());//->ID());
+    }
     std::string addr3 = getAddrDecor(ctx->ident()->expr(0));
     code = code || instruction::LOADX(addr1,addr2,addr3);
     putAddrDecor(ctx, addr1);
@@ -752,7 +808,7 @@ TypesMgr::TypeId CodeGenListener::getTypeDecor(antlr4::ParserRuleContext *ctx) {
 std::string CodeGenListener::getAddrDecor(antlr4::ParserRuleContext *ctx) {
   return Decorations.getAddr(ctx);
 }
-std::string  CodeGenListener::getOffsetDecor(antlr4::ParserRuleContext *ctx) {
+std::string  CodeGenListener::getOffsetDecor(antlr4::ParserRuleContext *ctx) { // TODO: ask wtf is offset
   return Decorations.getOffset(ctx);
 }
 instructionList CodeGenListener::getCodeDecor(antlr4::ParserRuleContext *ctx) {
