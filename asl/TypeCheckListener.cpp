@@ -155,7 +155,8 @@ void TypeCheckListener::exitProcCall(AslParser::ProcCallContext *ctx) {
             for (std::size_t i = 0; i < paramTypes.size(); i++) {
 
               //std::cout << Types.to_string(paramTypes[i]) << " " << Types.to_string(getTypeDecor(ctx->expr(i))) << std::endl;
-              if (not Types.equalTypes(paramTypes[i], getTypeDecor(ctx->expr(i))))
+              //if (not Types.equalTypes(paramTypes[i], getTypeDecor(ctx->expr(i))))
+              if (not Types.copyableTypes(paramTypes[i], getTypeDecor(ctx->expr(i))))
               //if (paramTypes[i] != getTypeDecor(ctx->expr(i)))
                 Errors.incompatibleParameter(ctx->expr(i),i+1,ctx);
             }
