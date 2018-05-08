@@ -181,7 +181,7 @@ void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
     //std::string     addr1 = getAddrDecor(ctx->left_expr()->ident());
 
     std::string addr1;
-    if (Symbols.isParameterClass(ctx->left_expr()->ident()->ID()->getText())) { // for jp_genc_07, load pointer of array (param). todo: it should only be done once. still, it doesn't work
+    if (Symbols.isParameterClass(ctx->left_expr()->ident()->ID()->getText())) { // for jp_genc_07, load pointer of array (param). todo: it should only be done once
       addr1 = "%" + codeCounters.newTEMP();
       code = instruction::LOAD(addr1,getAddrDecor(ctx->left_expr()->ident()));
       putAddrDecor(ctx->left_expr()->ident(), addr1);
@@ -497,7 +497,14 @@ void CodeGenListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
     else if (ctx->PLUS())
       code = code || instruction::ADD(temp, addr1, addr2);
     else if (ctx->SUB())
-      code = code || instruction::SUB(temp, addr1, addr2); 
+      code = code || instruction::SUB(temp, addr1, addr2);
+    else if (ctx->MOD()) {
+      std::string temp2 = "%"+codeCounters.newTEMP();
+      code = code || instruction::DIV(temp2, addr1, addr2);
+      std::string temp3 = "%"+codeCounters.newTEMP();
+      code = code || instruction::MUL(temp3,temp2,addr2);
+      code = code || instruction::SUB(temp,addr1,temp3);
+    } 
   }
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, "");
