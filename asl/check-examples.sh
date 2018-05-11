@@ -33,12 +33,16 @@ echo "END   examples-initial/codegen"
 
 echo ""
 echo "BEGIN examples-full/codegen"
-for f in ../examples/jp_genc_*.asl; do
-    echo $(basename "$f")
-    ./asl "$f" > tmp.t
-    diff tmp.t "${f/asl/t}"
-    rm -f tmp.t
-done
+f=../examples/jp_genc_01.asl
+echo $(basename "$f")
+./asl "$f" > tmp.t
+diff tmp.t "${f/asl/t}"
+rm -f tmp.t
+f=../examples/jp_genc_02.asl
+echo $(basename "$f")
+./asl "$f" > tmp.t
+diff tmp.t "${f/asl/t}"
+rm -f tmp.t
 echo "END   examples-full/codegen"
 
 
@@ -63,4 +67,3 @@ for f in ../examples/jp_genc_*.asl; do
     rm -f tmp.t tmp.out
 done
 echo "END   examples-full/execution"
-
