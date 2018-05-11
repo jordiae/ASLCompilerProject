@@ -70,6 +70,9 @@ public:
   virtual void enterBoolean(AslParser::BooleanContext * /*ctx*/) override { }
   virtual void exitBoolean(AslParser::BooleanContext * /*ctx*/) override { }
 
+  virtual void enterExprIdentProcedure(AslParser::ExprIdentProcedureContext * /*ctx*/) override { }
+  virtual void exitExprIdentProcedure(AslParser::ExprIdentProcedureContext * /*ctx*/) override { }
+
   virtual void enterParenth(AslParser::ParenthContext * /*ctx*/) override { }
   virtual void exitParenth(AslParser::ParenthContext * /*ctx*/) override { }
 
@@ -90,6 +93,9 @@ public:
 
   virtual void enterIdent(AslParser::IdentContext * /*ctx*/) override { }
   virtual void exitIdent(AslParser::IdentContext * /*ctx*/) override { }
+
+  virtual void enterProcedure(AslParser::ProcedureContext * /*ctx*/) override { }
+  virtual void exitProcedure(AslParser::ProcedureContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

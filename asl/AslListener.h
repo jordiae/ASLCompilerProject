@@ -68,6 +68,9 @@ public:
   virtual void enterBoolean(AslParser::BooleanContext *ctx) = 0;
   virtual void exitBoolean(AslParser::BooleanContext *ctx) = 0;
 
+  virtual void enterExprIdentProcedure(AslParser::ExprIdentProcedureContext *ctx) = 0;
+  virtual void exitExprIdentProcedure(AslParser::ExprIdentProcedureContext *ctx) = 0;
+
   virtual void enterParenth(AslParser::ParenthContext *ctx) = 0;
   virtual void exitParenth(AslParser::ParenthContext *ctx) = 0;
 
@@ -88,6 +91,9 @@ public:
 
   virtual void enterIdent(AslParser::IdentContext *ctx) = 0;
   virtual void exitIdent(AslParser::IdentContext *ctx) = 0;
+
+  virtual void enterProcedure(AslParser::ProcedureContext *ctx) = 0;
+  virtual void exitProcedure(AslParser::ProcedureContext *ctx) = 0;
 
 
 };

@@ -195,8 +195,8 @@ void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
     // std::string     offs1 = getOffsetDecor(ctx->left_expr());
     //instructionList code1 = getCodeDecor(ctx->left_expr());
     
-    instructionList codeIndex = getCodeDecor(ctx->left_expr()->ident()->expr(0));
-    std::string addrIndex = getAddrDecor(ctx->left_expr()->ident()->expr(0));
+    instructionList codeIndex = getCodeDecor(ctx->left_expr()->ident()->expr());
+    std::string addrIndex = getAddrDecor(ctx->left_expr()->ident()->expr());
 
     // TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
     std::string     addr2 = getAddrDecor(ctx->expr());
@@ -258,16 +258,37 @@ void CodeGenListener::exitIfStmt(AslParser::IfStmtContext *ctx) {
   DEBUG_EXIT();
 }
 
+void CodeGenListener::enterExprIdentProcedure(AslParser::ExprIdentProcedureContext *ctx) {
+  DEBUG_ENTER();
+}
+
+
+void CodeGenListener::exitExprIdentProcedure(AslParser::ExprIdentProcedureContext *ctx) {
+  putAddrDecor(ctx, getAddrDecor(ctx->procedure()));
+  putOffsetDecor(ctx, getOffsetDecor(ctx->procedure()));
+  putCodeDecor(ctx, getCodeDecor(ctx->procedure()));
+
+  DEBUG_EXIT();
+}
+
 void CodeGenListener::enterProcCall(AslParser::ProcCallContext *ctx) {
   DEBUG_ENTER();
 }
 
 
 void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
+  putAddrDecor(ctx, getAddrDecor(ctx->procedure()));
+  putOffsetDecor(ctx, getOffsetDecor(ctx->procedure()));
+  putCodeDecor(ctx, getCodeDecor(ctx->procedure()));
+
+  
+
   // instructionList code = instruction::PUSH(); // Nope, because we don't care about the result (if any)
   // std::string name = ctx->ident()->ID()->getSymbol()->getText();
   // similar to void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) { if (ctx->ident()->OPENPAREN()){
-  instructionList code;
+  
+  
+  /*instructionList code;
 
   if (not Types.isVoidFunction(getTypeDecor(ctx->ident()))) {
     code = code || instruction::PUSH(); // added for jp_genc_06. space for _result. otherwise, a parameter may be overwritten, even if we don't use _result because it's a proccall
@@ -316,10 +337,10 @@ void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
   }
 
 
-  /*std::string name = ctx->ident()->getText();
-  code = instruction::CALL(name);*/
+  //std::string name = ctx->ident()->getText();
+  //code = instruction::CALL(name);
   putCodeDecor(ctx, code);
-  DEBUG_EXIT();
+  DEBUG_EXIT();*/
 }
 
 void CodeGenListener::enterReadStmt(AslParser::ReadStmtContext *ctx) {
@@ -335,8 +356,8 @@ void CodeGenListener::exitReadStmt(AslParser::ReadStmtContext *ctx) {
     // std::string     offs1 = getOffsetDecor(ctx->left_expr());
     //instructionList code1 = getCodeDecor(ctx->left_expr());
     
-    instructionList codeIndex = getCodeDecor(ctx->left_expr()->ident()->expr(0));
-    std::string addrIndex = getAddrDecor(ctx->left_expr()->ident()->expr(0));
+    instructionList codeIndex = getCodeDecor(ctx->left_expr()->ident()->expr());
+    std::string addrIndex = getAddrDecor(ctx->left_expr()->ident()->expr());
 /*
     // TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
     std::string     addr2 = getAddrDecor(ctx->expr());
@@ -625,59 +646,13 @@ void CodeGenListener::enterExprIdent(AslParser::ExprIdentContext *ctx) {
 
 
 void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
-  if (ctx->ident()->OPENPAREN()){
-    instructionList  code = instruction::PUSH();
-    for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
-      // check int -> float for implicit conversion (similar to procCall)
-      TypesMgr::TypeId tid1 = getTypeDecor(ctx->ident()->expr(i)); // type of value to pass as parameter
-      //TypesMgr::TypeId tid2 =  Types.getParameterType(getTypeDecor(ctx->ident()),i); // actual parameter type
-      TypesMgr::TypeId tid2 =  Types.getParameterType(Symbols.getType(ctx->ident()->ID()->getText()),i); // actual parameter type
-      if (Types.isIntegerTy(tid1) && Types.isFloatTy(tid2)) {
-        std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
-        instructionList code1 = getCodeDecor(ctx->ident()->expr(i));
-        std::string temp = "%"+codeCounters.newTEMP();
-        instructionList codeCast = instruction::FLOAT(temp, addr1);
-        code = code || code1 || codeCast || instruction::PUSH(temp);
-      }
-      else if (Types.isArrayTy(tid2)) { // array as a ref, as in proccall (exactly the same?)
-        // std::string     addr1 = getAddrDecor(ctx->expr(i));
-        std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
-        //instructionList code1 = getCodeDecor(ctx->expr(i));
-
-        std::string temp = "%"+codeCounters.newTEMP();        
-
-        // create new instruction "a1 = &a2" 
-        // static instruction ALOAD(const std::string &a1, const std::string &a2);
-        instructionList code1 = instruction::ALOAD(temp,addr1);
-
-        code = code || code1 || instruction::PUSH(temp);
-      }
-      else {
-        std::string     addr1 = getAddrDecor(ctx->ident()->expr(i));
-        instructionList code1 = getCodeDecor(ctx->ident()->expr(i));
-        code = code || code1 || instruction::PUSH(addr1);
-      }
-    }
-    code = code || instruction::CALL(ctx->ident()->ID()->getText());
-    
-    for (unsigned int i = 0; i < ctx->ident()->expr().size(); i++){
-      code = code || instruction::POP();
-    }
-    // std::string     addr = getAddrDecor(ctx->ident());
-    // (temp reg, not function name)
-    std::string addr = "%" + codeCounters.newTEMP();
-    code = code || instruction::POP(addr);
-    
-    putAddrDecor(ctx, addr);
-    putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
-    putCodeDecor(ctx, code);
-  }
+  
   // let's take arrays into account
   // arrays in right expression
-  else if (ctx->ident()->OPENARRAY()) { // OPENARRAY = "["
+  if (ctx->ident()->OPENARRAY()) { // OPENARRAY = "["
     // create new instruction "a1 = a2[a3]" 
     //static instruction LOADX(const std::string &a1, const std::string &a2, const std::string &a3);
-    instructionList code = getCodeDecor(ctx->ident()->expr(0));
+    instructionList code = getCodeDecor(ctx->ident()->expr());
     std::string addr1 = "%" + codeCounters.newTEMP();
 
     std::string addr2;
@@ -690,7 +665,7 @@ void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
     else {
       addr2 = getAddrDecor(ctx->ident());//->ID());
     }
-    std::string addr3 = getAddrDecor(ctx->ident()->expr(0));
+    std::string addr3 = getAddrDecor(ctx->ident()->expr());
     code = code || instruction::LOADX(addr1,addr2,addr3);
     putAddrDecor(ctx, addr1);
     putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
@@ -707,6 +682,66 @@ void CodeGenListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
   
   DEBUG_EXIT();
 }
+
+void CodeGenListener::enterProcedure(AslParser::ProcedureContext *ctx) {
+  DEBUG_ENTER();
+}
+void CodeGenListener::exitProcedure(AslParser::ProcedureContext *ctx) {
+  if (ctx->OPENPAREN()){
+    instructionList  code;
+    if (not Types.isVoidFunction(Symbols.getType(ctx->ID()->getText())))
+        code = instruction::PUSH();
+    for (unsigned int i = 0; i < ctx->expr().size(); i++){
+      // check int -> float for implicit conversion (similar to procCall)
+      TypesMgr::TypeId tid1 = getTypeDecor(ctx->expr(i)); // type of value to pass as parameter
+      //TypesMgr::TypeId tid2 =  Types.getParameterType(getTypeDecor(ctx->ident()),i); // actual parameter type
+      TypesMgr::TypeId tid2 =  Types.getParameterType(Symbols.getType(ctx->ID()->getText()),i); // actual parameter type
+      if (Types.isIntegerTy(tid1) && Types.isFloatTy(tid2)) {
+        std::string     addr1 = getAddrDecor(ctx->expr(i));
+        instructionList code1 = getCodeDecor(ctx->expr(i));
+        std::string temp = "%"+codeCounters.newTEMP();
+        instructionList codeCast = instruction::FLOAT(temp, addr1);
+        code = code || code1 || codeCast || instruction::PUSH(temp);
+      }
+      else if (Types.isArrayTy(tid2)) { // array as a ref, as in proccall (exactly the same?)
+        // std::string     addr1 = getAddrDecor(ctx->expr(i));
+        std::string     addr1 = getAddrDecor(ctx->expr(i));
+        //instructionList code1 = getCodeDecor(ctx->expr(i));
+
+        std::string temp = "%"+codeCounters.newTEMP();        
+
+        // create new instruction "a1 = &a2" 
+        // static instruction ALOAD(const std::string &a1, const std::string &a2);
+        instructionList code1 = instruction::ALOAD(temp,addr1);
+
+        code = code || code1 || instruction::PUSH(temp);
+      }
+      else {
+        std::string     addr1 = getAddrDecor(ctx->expr(i));
+        instructionList code1 = getCodeDecor(ctx->expr(i));
+        code = code || code1 || instruction::PUSH(addr1);
+      }
+    }
+    code = code || instruction::CALL(ctx->ID()->getText());
+    
+    for (unsigned int i = 0; i < ctx->expr().size(); i++){
+      code = code || instruction::POP();
+    }
+    // std::string     addr = getAddrDecor(ctx->ident());
+    // (temp reg, not function name)
+    std::string addr = "";
+    if (not Types.isVoidFunction(Symbols.getType(ctx->ID()->getText()))){
+      addr = "%" + codeCounters.newTEMP();
+      code = code || instruction::POP(addr);
+    }
+      
+    putAddrDecor(ctx, addr);
+    putOffsetDecor(ctx, getOffsetDecor(ctx));
+    putCodeDecor(ctx, code);
+  }
+  DEBUG_EXIT();
+}
+
 
 void CodeGenListener::enterIdent(AslParser::IdentContext *ctx) {
   DEBUG_ENTER();

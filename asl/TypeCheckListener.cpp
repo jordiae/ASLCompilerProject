@@ -143,23 +143,65 @@ void TypeCheckListener::enterProcCall(AslParser::ProcCallContext *ctx) {
   DEBUG_ENTER();
 }
 void TypeCheckListener::exitProcCall(AslParser::ProcCallContext *ctx) {
-  TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
-  if (not Types.isFunctionTy(t1) and not Types.isErrorTy(t1)) {
-    Errors.isNotCallable(ctx->ident());
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->procedure());
+  putTypeDecor(ctx, t1);
+  bool b = getIsLValueDecor(ctx->procedure());
+  putIsLValueDecor(ctx, b);
+  DEBUG_EXIT();
+}
+
+
+void TypeCheckListener::enterProcedure(AslParser::ProcedureContext *ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitProcedure(AslParser::ProcedureContext *ctx) {
+
+  /*
+  hay que mover los Errors.xxyy(ctx) no comunes entre assignment y procCall a los padres
+  */
+
+  std::string ident = ctx->ID()->getText();
+  if (Symbols.findInStack(ident) == -1) {
+    Errors.undeclaredIdent(ctx->ID());
+    TypesMgr::TypeId te = Types.createErrorTy();
+    putTypeDecor(ctx, te);
+    putIsLValueDecor(ctx, true);
   }
-  if (Types.isFunctionTy(t1) and not Types.isErrorTy(t1) and Types.getNumOfParameters(t1) != ctx->expr().size())
+  else {
+    TypesMgr::TypeId t1 = Symbols.getType(ident);
+    if (Types.isFunctionTy(t1)) {
+        if (Types.isVoidFunction(t1)) {
+          Errors.isNotFunction(ctx);
+          t1 = Types.createErrorTy(); // For jp_chkt_8. Here or in SymbolsListener?
+        }
+        else {
+          if (Types.getNumOfParameters(t1) != ctx->expr().size())
             Errors.numberOfParameters(ctx);
-  if (Types.isFunctionTy(t1) and not Types.isErrorTy(t1) and Types.getNumOfParameters(t1) == ctx->expr().size()) { 
+          //const std::vector<TypeId> & getFuncParamsTypes (TypeId tid)     const;
+          else { 
             //std::cout << "T1 " << Types.to_string(t1) << std::endl; 
             std::vector<TypesMgr::TypeId> paramTypes = Types.getFuncParamsTypes(t1);
             for (std::size_t i = 0; i < paramTypes.size(); i++) {
 
               //std::cout << Types.to_string(paramTypes[i]) << " " << Types.to_string(getTypeDecor(ctx->expr(i))) << std::endl;
               //if (not Types.equalTypes(paramTypes[i], getTypeDecor(ctx->expr(i))))
-              if (not Types.copyableTypes(paramTypes[i], getTypeDecor(ctx->expr(i))))
+              if (not Types.copyableTypes(paramTypes[i],getTypeDecor(ctx->expr(i))))
               //if (paramTypes[i] != getTypeDecor(ctx->expr(i)))
                 Errors.incompatibleParameter(ctx->expr(i),i+1,ctx);
             }
+          }
+          t1 = Types.getFuncReturnType(t1);
+
+        }
+      }
+      else
+        Errors.isNotCallable(ctx);
+    
+    putTypeDecor(ctx, t1);
+    if (Symbols.isFunctionClass(ident))
+      putIsLValueDecor(ctx, false);
+    else
+      putIsLValueDecor(ctx, true);
   }
   DEBUG_EXIT();
 }
@@ -285,38 +327,40 @@ void TypeCheckListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
   DEBUG_EXIT();
 }
 
-void TypeCheckListener::enterIdent(AslParser::IdentContext *ctx) {
+void TypeCheckListener::enterExprIdentProcedure(AslParser::ExprIdentProcedureContext *ctx) {
   DEBUG_ENTER();
 }
-void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
-  std::string ident = ctx->ID()->getText();
+void TypeCheckListener::exitExprIdentProcedure(AslParser::ExprIdentProcedureContext *ctx) {
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->procedure());
+  putTypeDecor(ctx, t1);
+  bool b = getIsLValueDecor(ctx->procedure());
+  putIsLValueDecor(ctx, b);
+  DEBUG_EXIT();
+}
+
+/*
+void TypeCheckListener::enterExprIdentProcedure(AslParser::ExprIdentProcedureContext *ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitExprIdentProcedure(AslParser::ExprIdentProcedureContext *ctx) {
+
+  
+  std::string ident = ctx->procedure()->ID()->getText();
   if (Symbols.findInStack(ident) == -1) {
-    Errors.undeclaredIdent(ctx->ID());
+    Errors.undeclaredIdent(ctx->procedure()->ID());
     TypesMgr::TypeId te = Types.createErrorTy();
     putTypeDecor(ctx, te);
     putIsLValueDecor(ctx, true);
   }
-  else {
-    TypesMgr::TypeId t1 = Symbols.getType(ident);
-    if (ctx->OPENARRAY()) {
-      if (Types.isArrayTy(t1))
-        t1 = Types.getArrayElemType(t1);
-      else{
-        Errors.nonArrayInArrayAccess(ctx);
-        t1 = Types.createErrorTy(); // For jp_chkt_9. Here or in SymbolsListener?
-      }
-      if (not Types.isIntegerTy(getTypeDecor(ctx->expr(0)))){
-        Errors.nonIntegerIndexInArrayAccess(ctx->expr(0));
-      }
-    }
-    else if (ctx->OPENPAREN()) {
+  else {  
+    if (ctx->procedure()->OPENPAREN()) {
       if (Types.isFunctionTy(t1)) {
         if (Types.isVoidFunction(t1)) {
           Errors.isNotFunction(ctx);
           t1 = Types.createErrorTy(); // For jp_chkt_8. Here or in SymbolsListener?
         }
         else {
-          if (Types.getNumOfParameters(t1) != ctx->expr().size())
+          if (Types.getNumOfParameters(t1) != ctx->procedure()->expr().size())
             Errors.numberOfParameters(ctx);
           //const std::vector<TypeId> & getFuncParamsTypes (TypeId tid)     const;
           else { 
@@ -338,6 +382,40 @@ void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
       else
         Errors.isNotCallable(ctx);
 
+    } 
+  }
+
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
+  putTypeDecor(ctx, t1);
+  bool b = getIsLValueDecor(ctx->ident());
+  putIsLValueDecor(ctx, b);
+  DEBUG_EXIT();
+}
+*/
+
+void TypeCheckListener::enterIdent(AslParser::IdentContext *ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
+  std::string ident = ctx->ID()->getText();
+  if (Symbols.findInStack(ident) == -1) {
+    Errors.undeclaredIdent(ctx->ID());
+    TypesMgr::TypeId te = Types.createErrorTy();
+    putTypeDecor(ctx, te);
+    putIsLValueDecor(ctx, true);
+  }
+  else {
+    TypesMgr::TypeId t1 = Symbols.getType(ident);
+    if (ctx->OPENARRAY()) {
+      if (Types.isArrayTy(t1))
+        t1 = Types.getArrayElemType(t1);
+      else{
+        Errors.nonArrayInArrayAccess(ctx);
+        t1 = Types.createErrorTy(); // For jp_chkt_9. Here or in SymbolsListener?
+      }
+      if (not Types.isIntegerTy(getTypeDecor(ctx->expr()))){
+        Errors.nonIntegerIndexInArrayAccess(ctx->expr());
+      }
     }
 
 
