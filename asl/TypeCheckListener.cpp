@@ -170,11 +170,16 @@ void TypeCheckListener::exitProcedure(AslParser::ProcedureContext *ctx) {
   else {
     TypesMgr::TypeId t1 = Symbols.getType(ident);
     if (Types.isFunctionTy(t1)) {
-        if (Types.isVoidFunction(t1)) {
-          Errors.isNotFunction(ctx);
-          t1 = Types.createErrorTy(); // For jp_chkt_8. Here or in SymbolsListener?
-        }
-        else {
+        // nothing, moved to exitExprIdentProcedure
+        /*if (Types.isVoidFunction(t1)) {
+            t1 = Types.createVoidTy();
+        }*/
+            ;// nothing, moved to exitExprIdentProcedure
+          /*Errors.isNotFunction(ctx);
+          t1 = Types.createErrorTy(); // For jp_chkt_8. Here or in SymbolsListener?*/
+        //}
+        // else {
+        if (true) { // TODO clean
           if (Types.getNumOfParameters(t1) != ctx->expr().size())
             Errors.numberOfParameters(ctx);
           //const std::vector<TypeId> & getFuncParamsTypes (TypeId tid)     const;
@@ -190,7 +195,7 @@ void TypeCheckListener::exitProcedure(AslParser::ProcedureContext *ctx) {
                 Errors.incompatibleParameter(ctx->expr(i),i+1,ctx);
             }
           }
-          t1 = Types.getFuncReturnType(t1);
+          //t1 = Types.getFuncReturnType(t1); // moved to ExprIdentProcedure
 
         }
       }
@@ -332,6 +337,16 @@ void TypeCheckListener::enterExprIdentProcedure(AslParser::ExprIdentProcedureCon
 }
 void TypeCheckListener::exitExprIdentProcedure(AslParser::ExprIdentProcedureContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->procedure());
+  //std::cout << Types.isErrorTy(t1) << " " << Types.isFunctionTy(t1) << " " <<  std::endl;
+  if (not Types.isErrorTy(t1) and Types.isFunctionTy(t1) and Types.isVoidFunction(t1)) {
+  //if (not Types.isErrorTy(t1) and Types.isVoidFunction(t1)) {
+       // std::cout << "hola " << std::endl;
+        
+          Errors.isNotFunction(ctx);
+          t1 = Types.createErrorTy();
+  }
+  if (Types.isFunctionTy(t1))
+      t1 = Types.getFuncReturnType(t1);
   putTypeDecor(ctx, t1);
   bool b = getIsLValueDecor(ctx->procedure());
   putIsLValueDecor(ctx, b);
