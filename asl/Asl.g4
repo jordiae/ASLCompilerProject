@@ -98,6 +98,7 @@ left_expr
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
+//TODO unary +
 expr    : '(' expr ')'							# parenth
 		| op=SUB expr								# unary
 		| expr op=(MUL|DIV) expr                    # arithmetic
@@ -165,7 +166,7 @@ BOOLVAL   : ('true'|'false');
 ID        : ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')* ;
 INTVAL    : ('0'..'9')+ ;
 FLOATVAL  : (INTVAL('.')?|('0'..'9')*('.')('0'..'9')+);
-CHARVAL   : '\''('a'..'z'|'A'..'Z'|'_')'\'';
+CHARVAL   : '\'' ( ESC_SEQ | ~('\\'|'"') ) '\'';
 
 
 // Strings (in quotes) with escape sequences

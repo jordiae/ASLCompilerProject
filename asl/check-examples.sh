@@ -67,3 +67,17 @@ for f in ../examples/jp_genc_*.asl; do
     rm -f tmp.t tmp.out
 done
 echo "END   examples-full/execution"
+
+
+
+echo ""
+echo "BEGIN examples-full/custom"
+for f in ../examples/jp_custom_*.asl; do
+    echo $(basename "$f")
+    ./asl "$f" > tmp.t
+    ../tvm/tvm tmp.t < "${f/asl/in}" > tmp.out
+    diff tmp.out "${f/asl/out}"
+    rm -f tmp.t tmp.out
+done
+echo "END   examples-full/custom"
+

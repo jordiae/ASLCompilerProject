@@ -376,7 +376,8 @@ void CodeGenListener::exitReadStmt(AslParser::ReadStmtContext *ctx) {
       codeR = instruction::READI(temp);
     else if (Types.isFloatTy(tid1))
       codeR = instruction::READF(temp);
-
+    else if (Types.isCharacterTy(tid1))
+      codeR = instruction::READC(temp);
     
     instructionList codeL = instruction::XLOAD(addr1,addrIndex,temp);
 
@@ -396,6 +397,8 @@ void CodeGenListener::exitReadStmt(AslParser::ReadStmtContext *ctx) {
       code = code1 || instruction::READI(addr1);
     else if (Types.isFloatTy(tid1))
       code = code1 || instruction::READF(addr1);
+    else if (Types.isCharacterTy(tid1))
+      code = code1 || instruction::READC(addr1);
     //code = code1 || instruction::READI(addr1); // TODO: not only READI, other cases
     putCodeDecor(ctx, code);
     DEBUG_EXIT();
@@ -416,6 +419,8 @@ void CodeGenListener::exitWriteExpr(AslParser::WriteExprContext *ctx) {
     code = code1 || instruction::WRITEI(addr1);
   else if (Types.isFloatTy(tid1))
     code = code1 || instruction::WRITEF(addr1);
+  else if (Types.isCharacterTy(tid1))
+    code = code1 || instruction::WRITEC(addr1);
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
@@ -567,6 +572,8 @@ void CodeGenListener::exitRelational(AslParser::RelationalContext *ctx) {
   if (Types.isFloatTy(t1) or Types.isFloatTy(t2)){
     if (ctx->EQUAL())
       code = code || instruction::FEQ(temp, addr1, addr2);
+    else if (ctx->NEQUAL())
+      code = code || instruction::FEQ(temp, addr1, addr2) || instruction::NOT(temp, temp);
     else if (ctx->GEQUAL()) //b >= a  -> not b < a
       code = code || instruction::FLT(temp, addr1, addr2) || instruction::NOT(temp, temp);
     else if (ctx->LEQUAL())
@@ -576,9 +583,11 @@ void CodeGenListener::exitRelational(AslParser::RelationalContext *ctx) {
     else if (ctx->LESSER())
       code = code || instruction::FLT(temp, addr1, addr2);
   }
-  else if (Types.isIntegerTy(t1) and Types.isIntegerTy(t2)){
+  else if ((Types.isIntegerTy(t1) and Types.isIntegerTy(t2)) or (Types.isCharacterTy(t1) and Types.isCharacterTy(t2)) ){
     if (ctx->EQUAL())
       code = code || instruction::EQ(temp, addr1, addr2);
+    else if (ctx->NEQUAL())
+      code = code || instruction::EQ(temp, addr1, addr2) || instruction::NOT(temp, temp);
     else if (ctx->GEQUAL()) //idem
       code = code || instruction::LT(temp, addr1, addr2) || instruction::NOT(temp, temp);
     else if (ctx->LEQUAL())
@@ -591,7 +600,10 @@ void CodeGenListener::exitRelational(AslParser::RelationalContext *ctx) {
   else if (Types.isBooleanTy(t1) and Types.isBooleanTy(t2)){
     if (ctx->EQUAL())
       code = code || instruction::EQ(temp, addr1, addr2);
+    else if (ctx->NEQUAL())
+      code = code || instruction::EQ(temp, addr1, addr2) || instruction::NOT(temp, temp);
   }
+  
   
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, "");
@@ -614,8 +626,12 @@ void CodeGenListener::exitValue(AslParser::ValueContext *ctx) {
     code = instruction::ILOAD(temp, tempText);
   else if (ctx->FLOATVAL())
     code = instruction::FLOAD(temp, tempText);
-  else
-    code = instruction::CHLOAD(temp, tempText);
+  else{/*
+    std::string s = std::string(1, tempText.c_str()[1]);
+    std::cout << tempText << "   SPACE   " << tempText.c_str()[1] << std::endl;
+    code = instruction::CHLOAD(temp, s);*/ //TODO
+  }
+    
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, "");
   putCodeDecor(ctx, code);

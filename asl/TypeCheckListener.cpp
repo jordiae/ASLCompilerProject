@@ -174,12 +174,11 @@ void TypeCheckListener::exitProcedure(AslParser::ProcedureContext *ctx) {
         /*if (Types.isVoidFunction(t1)) {
             t1 = Types.createVoidTy();
         }*/
-            ;// nothing, moved to exitExprIdentProcedure
+            // nothing, moved to exitExprIdentProcedure
           /*Errors.isNotFunction(ctx);
           t1 = Types.createErrorTy(); // For jp_chkt_8. Here or in SymbolsListener?*/
         //}
         // else {
-        if (true) { // TODO clean
           if (Types.getNumOfParameters(t1) != ctx->expr().size())
             Errors.numberOfParameters(ctx);
           //const std::vector<TypeId> & getFuncParamsTypes (TypeId tid)     const;
@@ -197,7 +196,6 @@ void TypeCheckListener::exitProcedure(AslParser::ProcedureContext *ctx) {
           }
           //t1 = Types.getFuncReturnType(t1); // moved to ExprIdentProcedure
 
-        }
       }
       else
         Errors.isNotCallable(ctx);
