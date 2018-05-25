@@ -630,6 +630,42 @@ void CodeGenListener::exitValue(AslParser::ValueContext *ctx) {
     std::string s = std::string(1, tempText.c_str()[1]);
     std::cout << tempText << "   SPACE   " << tempText.c_str()[1] << std::endl;
     code = instruction::CHLOAD(temp, s);*/ //TODO
+    std::string mychar = tempText.substr(1, tempText.length()-2);
+    code = instruction::CHLOAD(temp,mychar);
+      // CODE FROM WRITESTRING
+      /*instructionList code;
+      std::string s = ctx->STRING()->getText();
+      std::string temp = "%"+codeCounters.newTEMP();
+      int i = 1;
+      while (i < int(s.size())-1) {
+        if (s[i] != '\\') {
+          code = code ||
+	         instruction::CHLOAD(temp, s.substr(i,1)) ||
+	         instruction::WRITEC(temp);
+          i += 1;
+        }
+        else {
+          assert(i < int(s.size())-2);
+          if (s[i+1] == 'n') {
+            code = code || instruction::WRITELN();
+            i += 2;
+          }
+          else if (s[i+1] == 't' or s[i+1] == '"' or s[i+1] == '\\') {
+            code = code ||
+                   instruction::CHLOAD(temp, s.substr(i,2)) ||
+	           instruction::WRITEC(temp);
+            i += 2;
+          }
+          else {
+            code = code ||
+                   instruction::CHLOAD(temp, s.substr(i,1)) ||
+	           instruction::WRITEC(temp);
+            i += 1;
+          }
+        }
+      }
+      putCodeDecor(ctx, code);
+      DEBUG_EXIT();*/
   }
     
   putAddrDecor(ctx, temp);
