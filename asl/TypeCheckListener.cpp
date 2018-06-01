@@ -406,10 +406,42 @@ void TypeCheckListener::exitExprIdentProcedure(AslParser::ExprIdentProcedureCont
 }
 */
 
-void TypeCheckListener::enterIdent(AslParser::IdentContext *ctx) {
+void TypeCheckListener::enterIdentID(AslParser::IdentIDContext *ctx) {
   DEBUG_ENTER();
 }
-void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
+void TypeCheckListener::exitIdentID(AslParser::IdentIDContext *ctx) {
+  std::string ident = ctx->ID()->getText();
+  if (Symbols.findInStack(ident) == -1) {
+    Errors.undeclaredIdent(ctx->ID());
+    TypesMgr::TypeId te = Types.createErrorTy();
+    putTypeDecor(ctx, te);
+    putIsLValueDecor(ctx, true);
+  }
+  else {
+    TypesMgr::TypeId t1 = Symbols.getType(ident);
+    
+  /*void isNotCallable                (antlr4::ParserRuleContext *ctx);
+  void isNotProcedure               (antlr4::ParserRuleContext *ctx);
+  void isNotFunction                (antlr4::ParserRuleContext *ctx);
+  void numberOfParameters           (antlr4::ParserRuleContext *ctx);
+  void incompatibleParameter        (antlr4::ParserRuleContext *pCtx,
+             unsigned int n,
+             antlr4::ParserRuleContext *cCtx);*/
+
+
+    putTypeDecor(ctx, t1);
+    if (Symbols.isFunctionClass(ident))
+      putIsLValueDecor(ctx, false);
+    else
+      putIsLValueDecor(ctx, true);
+  }
+  DEBUG_EXIT();
+}
+
+void TypeCheckListener::enterIdentArrayAccess(AslParser::IdentArrayAccessContext *ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitIdentArrayAccess(AslParser::IdentArrayAccessContext *ctx) {
   std::string ident = ctx->ID()->getText();
   if (Symbols.findInStack(ident) == -1) {
     Errors.undeclaredIdent(ctx->ID());
@@ -456,7 +488,7 @@ void TypeCheckListener::enterUnary(AslParser::UnaryContext *ctx) {
 }
 void TypeCheckListener::exitUnary(AslParser::UnaryContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->expr());
-  if (ctx->SUB()){
+  if (ctx->SUB() or ctx->PLUS()){
     if ((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1)))
       Errors.incompatibleOperator(ctx->op);
     TypesMgr::TypeId t;

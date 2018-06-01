@@ -98,9 +98,8 @@ left_expr
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
-//TODO unary +
 expr    : '(' expr ')'							# parenth
-		| op=SUB expr								# unary
+		| op=(SUB|PLUS) expr								# unary
 		| expr op=(MUL|DIV) expr                    # arithmetic
         | expr op=(PLUS|SUB) expr                   # arithmetic
         | expr op=MOD expr                          # arithmetic
@@ -116,8 +115,8 @@ expr    : '(' expr ')'							# parenth
         | procedure                           # exprIdentProcedure
         ;
 
-ident   : ID
-        | ID op=OPENARRAY expr ']'
+ident   : ID                        #identID
+        | ID op=OPENARRAY expr ']'  #identArrayAccess
         ;
 
 procedure: ID op=OPENPAREN (expr (','expr)*)? ')' ;

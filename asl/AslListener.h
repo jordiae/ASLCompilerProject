@@ -89,8 +89,11 @@ public:
   virtual void enterValue(AslParser::ValueContext *ctx) = 0;
   virtual void exitValue(AslParser::ValueContext *ctx) = 0;
 
-  virtual void enterIdent(AslParser::IdentContext *ctx) = 0;
-  virtual void exitIdent(AslParser::IdentContext *ctx) = 0;
+  virtual void enterIdentID(AslParser::IdentIDContext *ctx) = 0;
+  virtual void exitIdentID(AslParser::IdentIDContext *ctx) = 0;
+
+  virtual void enterIdentArrayAccess(AslParser::IdentArrayAccessContext *ctx) = 0;
+  virtual void exitIdentArrayAccess(AslParser::IdentArrayAccessContext *ctx) = 0;
 
   virtual void enterProcedure(AslParser::ProcedureContext *ctx) = 0;
   virtual void exitProcedure(AslParser::ProcedureContext *ctx) = 0;

@@ -1139,6 +1139,7 @@ AslParser::Return_statementContext* AslParser::return_statement() {
     if ((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & ((1ULL << AslParser::OPENPAREN)
       | (1ULL << AslParser::NOT)
+      | (1ULL << AslParser::PLUS)
       | (1ULL << AslParser::SUB)
       | (1ULL << AslParser::BOOLVAL)
       | (1ULL << AslParser::ID)
@@ -1407,6 +1408,10 @@ tree::TerminalNode* AslParser::UnaryContext::SUB() {
   return getToken(AslParser::SUB, 0);
 }
 
+tree::TerminalNode* AslParser::UnaryContext::PLUS() {
+  return getToken(AslParser::PLUS, 0);
+}
+
 tree::TerminalNode* AslParser::UnaryContext::NOT() {
   return getToken(AslParser::NOT, 0);
 }
@@ -1496,7 +1501,17 @@ AslParser::ExprContext* AslParser::expr(int precedence) {
       _ctx = _localctx;
       previousContext = _localctx;
       setState(179);
-      dynamic_cast<UnaryContext *>(_localctx)->op = match(AslParser::SUB);
+      dynamic_cast<UnaryContext *>(_localctx)->op = _input->LT(1);
+      _la = _input->LA(1);
+      if (!(_la == AslParser::PLUS
+
+      || _la == AslParser::SUB)) {
+        dynamic_cast<UnaryContext *>(_localctx)->op = _errHandler->recoverInline(this);
+      }
+      else {
+        _errHandler->reportMatch(this);
+        consume();
+      }
       setState(180);
       expr(14);
       break;
@@ -1737,35 +1752,59 @@ AslParser::IdentContext::IdentContext(ParserRuleContext *parent, size_t invoking
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* AslParser::IdentContext::ID() {
-  return getToken(AslParser::ID, 0);
-}
-
-AslParser::ExprContext* AslParser::IdentContext::expr() {
-  return getRuleContext<AslParser::ExprContext>(0);
-}
-
-tree::TerminalNode* AslParser::IdentContext::OPENARRAY() {
-  return getToken(AslParser::OPENARRAY, 0);
-}
-
 
 size_t AslParser::IdentContext::getRuleIndex() const {
   return AslParser::RuleIdent;
 }
 
-void AslParser::IdentContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AslListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterIdent(this);
+void AslParser::IdentContext::copyFrom(IdentContext *ctx) {
+  ParserRuleContext::copyFrom(ctx);
 }
 
-void AslParser::IdentContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AslListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitIdent(this);
+//----------------- IdentArrayAccessContext ------------------------------------------------------------------
+
+tree::TerminalNode* AslParser::IdentArrayAccessContext::ID() {
+  return getToken(AslParser::ID, 0);
 }
 
+AslParser::ExprContext* AslParser::IdentArrayAccessContext::expr() {
+  return getRuleContext<AslParser::ExprContext>(0);
+}
+
+tree::TerminalNode* AslParser::IdentArrayAccessContext::OPENARRAY() {
+  return getToken(AslParser::OPENARRAY, 0);
+}
+
+AslParser::IdentArrayAccessContext::IdentArrayAccessContext(IdentContext *ctx) { copyFrom(ctx); }
+
+void AslParser::IdentArrayAccessContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<AslListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterIdentArrayAccess(this);
+}
+void AslParser::IdentArrayAccessContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<AslListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitIdentArrayAccess(this);
+}
+//----------------- IdentIDContext ------------------------------------------------------------------
+
+tree::TerminalNode* AslParser::IdentIDContext::ID() {
+  return getToken(AslParser::ID, 0);
+}
+
+AslParser::IdentIDContext::IdentIDContext(IdentContext *ctx) { copyFrom(ctx); }
+
+void AslParser::IdentIDContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<AslListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterIdentID(this);
+}
+void AslParser::IdentIDContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<AslListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitIdentID(this);
+}
 AslParser::IdentContext* AslParser::ident() {
   IdentContext *_localctx = _tracker.createInstance<IdentContext>(_ctx, getState());
   enterRule(_localctx, 24, AslParser::RuleIdent);
@@ -1778,6 +1817,7 @@ AslParser::IdentContext* AslParser::ident() {
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 18, _ctx)) {
     case 1: {
+      _localctx = dynamic_cast<IdentContext *>(_tracker.createInstance<AslParser::IdentIDContext>(_localctx));
       enterOuterAlt(_localctx, 1);
       setState(214);
       match(AslParser::ID);
@@ -1785,11 +1825,12 @@ AslParser::IdentContext* AslParser::ident() {
     }
 
     case 2: {
+      _localctx = dynamic_cast<IdentContext *>(_tracker.createInstance<AslParser::IdentArrayAccessContext>(_localctx));
       enterOuterAlt(_localctx, 2);
       setState(215);
       match(AslParser::ID);
       setState(216);
-      dynamic_cast<IdentContext *>(_localctx)->op = match(AslParser::OPENARRAY);
+      dynamic_cast<IdentArrayAccessContext *>(_localctx)->op = match(AslParser::OPENARRAY);
       setState(217);
       expr(0);
       setState(218);
@@ -1869,6 +1910,7 @@ AslParser::ProcedureContext* AslParser::procedure() {
     if ((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & ((1ULL << AslParser::OPENPAREN)
       | (1ULL << AslParser::NOT)
+      | (1ULL << AslParser::PLUS)
       | (1ULL << AslParser::SUB)
       | (1ULL << AslParser::BOOLVAL)
       | (1ULL << AslParser::ID)
@@ -2017,7 +2059,7 @@ AslParser::Initializer::Initializer() {
     0xf, 0xe, 0xf, 0xe9, 0xb, 0xf, 0x5, 0xf, 0xeb, 0xa, 0xf, 0x3, 0xf, 0x3, 
     0xf, 0x3, 0xf, 0x2, 0x3, 0x18, 0x10, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0xe, 
     0x10, 0x12, 0x14, 0x16, 0x18, 0x1a, 0x1c, 0x2, 0x8, 0x3, 0x2, 0x1a, 
-    0x1d, 0x3, 0x2, 0x16, 0x17, 0x3, 0x2, 0x14, 0x15, 0x4, 0x2, 0xb, 0xd, 
+    0x1d, 0x3, 0x2, 0x14, 0x15, 0x3, 0x2, 0x16, 0x17, 0x4, 0x2, 0xb, 0xd, 
     0x10, 0x10, 0x3, 0x2, 0xe, 0xf, 0x3, 0x2, 0x12, 0x13, 0x2, 0x105, 0x2, 
     0x1f, 0x3, 0x2, 0x2, 0x2, 0x4, 0x25, 0x3, 0x2, 0x2, 0x2, 0x6, 0x46, 
     0x3, 0x2, 0x2, 0x2, 0x8, 0x64, 0x3, 0x2, 0x2, 0x2, 0xa, 0x66, 0x3, 0x2, 
@@ -2104,7 +2146,7 @@ AslParser::Initializer::Initializer() {
     0xaf, 0x5, 0x1a, 0xe, 0x2, 0xaf, 0x17, 0x3, 0x2, 0x2, 0x2, 0xb0, 0xb1, 
     0x8, 0xd, 0x1, 0x2, 0xb1, 0xb2, 0x7, 0x9, 0x2, 0x2, 0xb2, 0xb3, 0x5, 
     0x18, 0xd, 0x2, 0xb3, 0xb4, 0x7, 0x3, 0x2, 0x2, 0xb4, 0xc0, 0x3, 0x2, 
-    0x2, 0x2, 0xb5, 0xb6, 0x7, 0x15, 0x2, 0x2, 0xb6, 0xc0, 0x5, 0x18, 0xd, 
+    0x2, 0x2, 0xb5, 0xb6, 0x9, 0x3, 0x2, 0x2, 0xb6, 0xc0, 0x5, 0x18, 0xd, 
     0x10, 0xb7, 0xb8, 0x7, 0x11, 0x2, 0x2, 0xb8, 0xc0, 0x5, 0x18, 0xd, 0xc, 
     0xb9, 0xc0, 0x7, 0x2e, 0x2, 0x2, 0xba, 0xc0, 0x7, 0x2f, 0x2, 0x2, 0xbb, 
     0xc0, 0x7, 0x30, 0x2, 0x2, 0xbc, 0xc0, 0x7, 0x2c, 0x2, 0x2, 0xbd, 0xc0, 
@@ -2114,8 +2156,8 @@ AslParser::Initializer::Initializer() {
     0x2, 0xbf, 0xbb, 0x3, 0x2, 0x2, 0x2, 0xbf, 0xbc, 0x3, 0x2, 0x2, 0x2, 
     0xbf, 0xbd, 0x3, 0x2, 0x2, 0x2, 0xbf, 0xbe, 0x3, 0x2, 0x2, 0x2, 0xc0, 
     0xd5, 0x3, 0x2, 0x2, 0x2, 0xc1, 0xc2, 0xc, 0xf, 0x2, 0x2, 0xc2, 0xc3, 
-    0x9, 0x3, 0x2, 0x2, 0xc3, 0xd4, 0x5, 0x18, 0xd, 0x10, 0xc4, 0xc5, 0xc, 
-    0xe, 0x2, 0x2, 0xc5, 0xc6, 0x9, 0x4, 0x2, 0x2, 0xc6, 0xd4, 0x5, 0x18, 
+    0x9, 0x4, 0x2, 0x2, 0xc3, 0xd4, 0x5, 0x18, 0xd, 0x10, 0xc4, 0xc5, 0xc, 
+    0xe, 0x2, 0x2, 0xc5, 0xc6, 0x9, 0x3, 0x2, 0x2, 0xc6, 0xd4, 0x5, 0x18, 
     0xd, 0xf, 0xc7, 0xc8, 0xc, 0xd, 0x2, 0x2, 0xc8, 0xc9, 0x7, 0x18, 0x2, 
     0x2, 0xc9, 0xd4, 0x5, 0x18, 0xd, 0xe, 0xca, 0xcb, 0xc, 0xb, 0x2, 0x2, 
     0xcb, 0xcc, 0x9, 0x5, 0x2, 0x2, 0xcc, 0xd4, 0x5, 0x18, 0xd, 0xc, 0xcd, 

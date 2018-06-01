@@ -408,6 +408,7 @@ public:
     antlr4::Token *op = nullptr;
     ExprContext *expr();
     antlr4::tree::TerminalNode *SUB();
+    antlr4::tree::TerminalNode *PLUS();
     antlr4::tree::TerminalNode *NOT();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -429,16 +430,36 @@ public:
   ExprContext* expr(int precedence);
   class  IdentContext : public antlr4::ParserRuleContext {
   public:
-    antlr4::Token *op = nullptr;;
     IdentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    IdentContext() : antlr4::ParserRuleContext() { }
+    void copyFrom(IdentContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
+
     virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  IdentArrayAccessContext : public IdentContext {
+  public:
+    IdentArrayAccessContext(IdentContext *ctx);
+
+    antlr4::Token *op = nullptr;
     antlr4::tree::TerminalNode *ID();
     ExprContext *expr();
     antlr4::tree::TerminalNode *OPENARRAY();
-
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
+  };
+
+  class  IdentIDContext : public IdentContext {
+  public:
+    IdentIDContext(IdentContext *ctx);
+
+    antlr4::tree::TerminalNode *ID();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
   };
 
   IdentContext* ident();

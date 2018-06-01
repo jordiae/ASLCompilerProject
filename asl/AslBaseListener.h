@@ -91,8 +91,11 @@ public:
   virtual void enterValue(AslParser::ValueContext * /*ctx*/) override { }
   virtual void exitValue(AslParser::ValueContext * /*ctx*/) override { }
 
-  virtual void enterIdent(AslParser::IdentContext * /*ctx*/) override { }
-  virtual void exitIdent(AslParser::IdentContext * /*ctx*/) override { }
+  virtual void enterIdentID(AslParser::IdentIDContext * /*ctx*/) override { }
+  virtual void exitIdentID(AslParser::IdentIDContext * /*ctx*/) override { }
+
+  virtual void enterIdentArrayAccess(AslParser::IdentArrayAccessContext * /*ctx*/) override { }
+  virtual void exitIdentArrayAccess(AslParser::IdentArrayAccessContext * /*ctx*/) override { }
 
   virtual void enterProcedure(AslParser::ProcedureContext * /*ctx*/) override { }
   virtual void exitProcedure(AslParser::ProcedureContext * /*ctx*/) override { }

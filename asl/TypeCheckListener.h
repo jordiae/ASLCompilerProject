@@ -134,6 +134,12 @@ public:
   void enterReturnStmt(AslParser::ReturnStmtContext *ctx);
   void exitReturnStmt(AslParser::ReturnStmtContext *ctx);
 
+  void enterIdentID(AslParser::IdentIDContext *ctx);
+  void exitIdentID(AslParser::IdentIDContext *ctx);
+
+  void enterIdentArrayAccess(AslParser::IdentArrayAccessContext *ctx);
+  void exitIdentArrayAccess(AslParser::IdentArrayAccessContext *ctx);
+
   /*void enterFunctionCall(AslParser::FunctionCallContext * ctx);
   void exitFunctionCall(AslParser::FunctionCallContext * ctx);*/
 
